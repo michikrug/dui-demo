@@ -1,0 +1,83 @@
+<dom-module id="google-geocoder">
+
+  <script>
+  (function() {
+    'use strict';
+
+      window.gmapsLoaded = function() {
+        Polymer.Base.fire('gmapsLoaded', null, {node: window});
+      };
+
+      var loadScript = function(src, callback) {
+        var s = document.querySelector('script[src="' + src + '"]');
+        if (s) {
+          callback && (s.loaded && callback.call()) || s.addEventListener('load', callback);
+          return;
+        }
+        s = document.createElement('script');
+        s.async = 1;
+        s.defer = 1;
+        s.src = src;
+        s.addEventListener('load', function() { this.loaded = true; callback && callback.call(); });
+        document.body.appendChild(s);
+      };
+
+      Polymer({
+        is: 'google-geocoder',
+        fileLocation: 'components/google-geocoder-element.html',
+        properties: {
+          address: {
+            type: String,
+            reflectToAttribute: true,
+            observer: 'addressChanged'
+          },
+          lat: {
+            type: Number,
+            reflectToAttribute: true,
+            notify: true
+          },
+          lng: {
+            type: Number,
+            reflectToAttribute: true,
+            notify: true
+          },
+          coordinates: {
+            type: Object,
+            reflectToAttribute: true,
+            notify: true
+          }
+        },
+        addressChanged: function() {
+          this.address && this.queryAddress(this.address);
+        },
+        created: function() {
+          window.addEventListener('gmapsLoaded', this.initGeocoder.bind(this));
+          if (typeof google !== 'object' || !google.maps) {
+            loadScript('//maps.googleapis.com/maps/api/js?sensor=false&callback=gmapsLoaded');
+          }
+        },
+        initGeocoder: function() {
+          if (typeof google !== 'object' || !google.maps) return;
+          this._geocoder = new google.maps.Geocoder();
+          this.addressChanged();
+        },
+        queryAddress: function(address) {
+          var _this = this;
+          if (!this._geocoder) {
+            this.initGeocoder();
+            return;
+          }
+          this._geocoder.geocode({ 'address': address }, function(results, status) {
+            if (status === google.maps.GeocoderStatus.OK) {
+              var center = results[0].geometry.location;
+              _this.lat = center.lat();
+              _this.lng = center.lng();
+              _this.coordinates = { lat: _this.lat, lng: _this.lng };
+            }
+          });
+        }
+      });
+  })();
+  </script>
+
+</dom-module>

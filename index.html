@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>DUI Demo</title>
+
+  <script>Polymer = {dom: 'shadow'};</script>
+
+  <script src="imports/webcomponents-lite.min.js"></script>
+
+  <link rel="import" href="imports/polymer.html">
+  <link rel="import" href="imports/SmartComponent.html">
+
+  <link rel="import" href="components/AttributeLink.html">
+  <link rel="import" href="components/MessagingService.html">
+
+  <link rel="import" href="components/google-map-element.html">
+  <link rel="import" href="components/google-geocoder-element.html">
+  <link rel="import" href="components/current-weather-element.html">
+  <link rel="import" href="components/simple-chart-element.html">
+
+  <style>
+    html { box-sizing: border-box; }
+    *, *:before, *:after { box-sizing: inherit; }
+    body { font-size: 16px; font-family: sans-serif; margin: 1em; background-color: #fff; }
+    body > div { border: 1px solid #aaa; padding: 1em; vertical-align: top; margin: 1em; text-align: center; display: inline-block; width: calc(100% - 2em - 3px); }
+    body > div.w50 { width:calc(50% - 2em - 3px); }
+
+    @media (max-width: 900px) {
+      body > div { display:block; width:calc(100% - 2em - 3px) !important; }
+    }
+    @media (min-width: 1400px) {
+      body > div.w50 { width:calc(33.333% - 2em - 3px); }
+    }
+    :-webkit-full-screen #container { padding: 1em; }
+    :-moz-full-screen #container { padding: 1em; }
+    :-ms-fullscreen #container { padding: 1em; }
+    :-webkit-full-screen { position: fixed !important; top: 0 !important; left: 0 !important; font-size: 1.5em; width: 100% !important; height: 100% !important; max-height: none !important; max-width: none !important; background: #fff; }
+    :-moz-full-screen { position: fixed !important; top: 0 !important; left: 0 !important; font-size: 1.5em; width: 100% !important; height: 100% !important; max-height: none !important; max-width: none !important; background: #fff; }
+    :-ms-fullscreen { position: fixed !important; top: 0 !important; left: 0 !important; font-size: 1.5em; width: 100% !important; height: 100% !important; max-height: none !important; max-width: none !important; background: #fff; }
+  </style>
+
+</head>
+<body>
+
+  <div class="w50">
+    <google-map id="gmap1" lat="52.1" lng="12.3" style="width:300px; height:300px"></google-map>
+  </div>
+
+  <div class="w50">
+    <google-map id="gmap2" lat="52.1" lng="12.3" style="width:300px; height:300px"></google-map>
+  </div>
+
+  <div class="w50">
+    <select id="cityselect" onchange="this.setAttribute('value', this.value)">
+      <option>Chemnitz</option>
+      <option>Lugano</option>
+    </select>
+    <input type="text" placeholder="Location" name="textInput" id="inpText" onchange="this.setAttribute('value', this.value)">
+    <google-geocoder></google-geocoder>
+    <current-weather></current-weather>
+  </div>
+
+  <div class="w50">
+    <input type="text" value="50" name="testInput" id="inpTest" onchange="this.setAttribute('value', this.value)">
+    <input type="range" min="0" max="100" value="50" name="testInput2" id="inpTest2" onchange="this.setAttribute('value', this.value)">
+  </div>
+
+  <div class="w50">
+    <simple-chart type="temperature" id="chart3" value="25" min="-10" max="50" style="width:30px; height:200px"></simple-chart>
+  </div>
+
+  <div class="w50">
+    <simple-chart type="circle" id="chart2" value="5" min="0" max="200" style="width:200px; height:200px"></simple-chart>
+  </div>
+
+  <div class="w50">
+    <simple-chart type="bar" id="chart1" value="5" min="0" max="100" style="width:300px; height:30px"></simple-chart>
+  </div>
+
+  <messaging-service endpoint="http://forelle.informatik.tu-chemnitz.de:9001">
+    <attribute-link source="#inpTest@value"   target="#chart1@value"></attribute-link>
+    <attribute-link source="#inpTest@value"   target="#chart2@value"></attribute-link>
+    <attribute-link source="#inpTest@value"   target="#inpTest2@value"></attribute-link>
+
+    <attribute-link source="#inpTest2@value"  target="#chart1@value"></attribute-link>
+    <attribute-link source="#inpTest2@value"  target="#inpTest@value"></attribute-link>
+
+    <attribute-link source="#gmap1@lat"       target="#gmap2@lat"></attribute-link>
+    <attribute-link source="#gmap1@lng"       target="#gmap2@lng"></attribute-link>
+    <attribute-link source="#gmap1@zoom"       target="#gmap2@zoom"></attribute-link>
+
+    <attribute-link source="#cityselect@value"      target="#inpText@value"></attribute-link>
+    <attribute-link source="#inpText@value"         target="google-geocoder@address"></attribute-link>
+    <attribute-link source="#inpText@value"         target="current-weather@city"></attribute-link>
+    <attribute-link source="current-weather@temperature"   target="#chart3@value"></attribute-link>
+
+    <attribute-link source="google-geocoder@lat"    target="#gmap1@lat"></attribute-link>
+    <attribute-link source="google-geocoder@lng"    target="#gmap1@lng"></attribute-link>
+  </messaging-service>
+
+</body>
+</html>

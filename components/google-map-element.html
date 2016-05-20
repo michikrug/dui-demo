@@ -1,0 +1,124 @@
+<dom-module id="google-map">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+      }
+      #gmap {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        position: relative;
+      }
+    </style>
+
+    <div id="gmap"></div>
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+      window.gmapsLoaded = function() {
+        Polymer.Base.fire('gmapsLoaded', null, { node: window });
+      };
+
+      var loadScript = function(src, callback) {
+        var s = document.querySelector('script[src="' + src + '"]');
+        if (s) {
+          callback && (s.loaded && callback.call()) || s.addEventListener('load', callback);
+          return;
+        }
+        s = document.createElement('script');
+        s.async = 1;
+        s.defer = 1;
+        s.src = src;
+        s.addEventListener('load', function() { this.loaded = true; callback && callback.call(); });
+        document.body.appendChild(s);
+      };
+
+      Polymer({
+        is: 'google-map',
+        behaviors: [Polymer.InteractionBehavior],
+        fileLocation: 'components/google-map-element.html',
+        properties: {
+          lat: {
+            type: Number,
+            value: 51,
+            notify: true,
+            reflectToAttribute: true
+          },
+          lng: {
+            type: Number,
+            value: 11,
+            notify: true,
+            reflectToAttribute: true
+          },
+          zoom: {
+            type: Number,
+            value: 8,
+            notify: true,
+            reflectToAttribute: true,
+            observer: 'zoomChanged'
+          }
+        },
+        observers: [
+          'positionChanged(lat, lng)'
+        ],
+        positionChanged: function() {
+          this._map && this._map.setCenter({ lat: this.lat, lng: this.lng });
+        },
+        zoomChanged: function() {
+          this._map && this._map.setZoom(this.zoom);
+        },
+        created: function() {
+          window.addEventListener('gmapsLoaded', this.createMap.bind(this));
+
+          if (typeof google !== 'object' || !google.maps) {
+            loadScript('//maps.googleapis.com/maps/api/js?sensor=false&callback=gmapsLoaded');
+          }
+
+          this._style_observer = new MutationObserver((function() {
+            Polymer.Base.fire('resize', null, { node: this.$.gmap, bubbles: false });
+          }).bind(this));
+        },
+        attached: function() {
+          this._style_observer.observe(this, { attributes: true, attributeFilter: ['style'] });
+          this.createMap();
+        },
+        detached: function() {
+          this._style_observer.disconnect();
+        },
+        createMap: function() {
+          var _this = this, gmap = this.$.gmap;
+          if (typeof google !== 'object' || !google.maps || this._map) return;
+
+          this._map = new google.maps.Map(gmap, { zoom: this.zoom, disableDefaultUI: true, mapTypeControl: true });
+
+          google.maps.event.addListener(this._map, 'drag', function() {
+            var center = this.getCenter();
+            _this.lat = center.lat();
+            _this.lng = center.lng();
+          });
+
+          google.maps.event.addListener(this._map, 'zoom_changed', function() {
+            _this.zoom = this.getZoom();
+          });
+
+          gmap.addEventListener('resize', function(e) {
+            google.maps.event.trigger(_this._map, 'resize');
+            _this._map.setCenter({ lat: _this.lat, lng: _this.lng });
+            e.stopPropagation();
+          });
+
+          this.addEventListener('resize', function() {
+            Polymer.Base.fire('resize', null, { node: gmap });
+          });
+
+          this.fire('resize');
+        }
+      });
+  })();
+  </script>
+
+</dom-module>

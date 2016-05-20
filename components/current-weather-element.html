@@ -1,0 +1,34 @@
+<dom-module id="current-weather">
+
+  <script>
+    Polymer({
+      is: 'current-weather',
+      fileLocation: 'components/current-weather-element.html',
+      properties: {
+        city: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+          observer: 'cityChanged'
+        },
+        temperature: {
+          type: Number,
+          reflectToAttribute: true
+        }
+      },
+      cityChanged: function() {
+        this.city && this.getWeather(this.city);
+      },
+      getWeather: function(city) {
+        var _this = this;
+        window.xhrq.get('http://api.apixu.com/v1/current.json', function(data) {
+          _this.temperature = data.current.temp_c;
+        }, {
+          key: '8d299c44e32e4ab2b5b124440162005',
+          q: city
+        }, 'json');
+      }
+    });
+  </script>
+
+</dom-module>

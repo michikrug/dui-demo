@@ -1,0 +1,388 @@
+<dom-module id="messaging-service">
+
+  <script>
+  (function() {
+    "use strict";
+
+    var NAMESPACE = 'SmartComposition.';
+
+    var addElement = function(data) {
+      var nt = document.createElement(data.type);
+      if (data.content) Polymer.dom(nt).innerHTML = data.content;
+      if (data.id) nt.id = data.id;
+      if (data.className) nt.className = data.className;
+      if (data.css) nt.style.cssText  = data.css;
+      if (data.state) setState(nt, data.state);
+      // nt.style.width  = data.width || '200px';
+      // nt.style.height = data.height || '200px';
+      // nt.style.position = 'absolute';
+      // nt.style.left = 'calc(50% - 150px)';
+      // nt.style.top  = 'calc(50% - 150px)';
+      document.body.appendChild(nt);
+    };
+
+    var getState = function(component) {
+      var state = {};
+      component.properties && Object.getOwnPropertyNames(component.properties).forEach(function(prop) {
+        state[prop] = this[prop];
+      }, component);
+      return state;
+    };
+
+    var setState = function(component, state) {
+      state && Object.getOwnPropertyNames(state).forEach(function(prop) {
+        if (component.properties[prop]) component[prop] = state[prop];
+      }, component);
+    };
+
+    var loadScript = function(src, callback) {
+      var script = document.querySelector('script[src="' + src + '"]');
+      if (script) {
+        callback && (script.loaded && callback.call()) || script.addEventListener('load', callback);
+        return;
+      }
+      var script = document.createElement('script');
+      script.async = 1;
+      script.defer = 1;
+      script.src = src;
+      script.addEventListener('load', function() { this.loaded = true; callback && callback.call(); });
+      document.body.appendChild(script);
+    };
+
+    var DeviceInfo = {
+
+      getVersion : function(name) {
+        if (name.toLowerCase() === 'safari') name = 'version';
+        if (name) {
+          return new RegExp(name + '[\\/ ]([\\d\\w\\.-]+)', 'i').exec(navigator.replace(/Trident\/7\.0;/i, 'Trident/7.0; MSIE/11.0;').userAgent) && RegExp.$1 || '';
+        } else {
+          var m = navigator.userAgent.match(/version[\/ ]([\d\w\.]+)/i);
+          return m && m.length > 1 ? m[1] : '';
+        }
+      },
+
+      getOs : function() {
+        var operatingSystems = {
+          'iPad': /ipad/i,
+          'iPhone': /iphone/i,
+          'Windows Vista': /windows nt 6\.0/i,
+          'Windows 7/8': /windows nt 6\.\d+/i,
+          'Windows 2003': /windows nt 5\.2+/i,
+          'Windows XP': /windows nt 5\.1+/i,
+          'Windows 2000': /windows nt 5\.0+/i,
+          'OS X $1.$2': /os x (\d+)[._](\d+)/i,
+          'Android': /android/i,
+          'Linux': /linux/i,
+          'Googlebot': /googlebot/i
+        };
+        var osNames = Object.keys(operatingSystems);
+        var captures;
+        for (var i = 0, len = osNames.length; i < len; ++i) {
+          if (captures = operatingSystems[osNames[i]].exec(navigator.userAgent)) {
+            return ~osNames[i].indexOf('$1') ? osNames[i].replace(/\$(\d+)/g, function(_, n) { return captures[n]; }) : osNames[i];
+          }
+        }
+        return '';
+      },
+
+      getName : function() {
+        var names = ['Opera', 'Konqueror', 'Firefox', 'Chrome', 'Epiphany', 'Safari', 'MSIE', 'cURL', 'Maxthon'];
+        for (var i = 0, len = names.length; i < len; ++i) {
+          if (~navigator.userAgent.replace(/Trident\/7\.0;/i, 'Trident/7.0; MSIE/11.0;').toLowerCase().indexOf(names[i].toLowerCase())) return names[i];
+        }
+        return '';
+      },
+
+      getDeviceType : function() {
+        var devices = {
+          tv: "TV",
+          tablet: "Tablet",
+          phone: "Phone",
+          desktop: "Desktop"
+        };
+
+        var options = {
+          emptyUserAgentDeviceType: devices.desktop,
+          unknownUserAgentDeviceType: 'Unknown'
+        };
+
+        var ua = navigator.userAgent;
+
+        if (!ua || ua === '') {
+          return options.emptyUserAgentDeviceType;
+        }
+
+        if (ua.match(/Xbox|PLAYSTATION 3|Wii|GoogleTV|SmartTV|Internet TV|NetCast|NETTV|AppleTV|boxee|Kylo|Roku|DLNADOC|CE\-HTML/i)) {
+          return devices.tv;
+        } else if (ua.match(/iP(a|o)d/i) || (ua.match(/tablet/i) && !ua.match(/RX-34/i)) || ua.match(/FOLIO/i)) {
+          return devices.tablet;
+        } else if (ua.match(/Linux/i) && ua.match(/Android/i) && !ua.match(/Fennec|mobi|HTC Magic|HTCX06HT|Nexus One|SC-02B|fone 945/i)) {
+          return devices.tablet;
+        } else if (ua.match(/Kindle/i) || (ua.match(/Mac OS/i) && ua.match(/Silk/i))) {
+          return devices.tablet;
+        } else if (ua.match(/GT-P10|SC-01C|SHW-M180S|SGH-T849|SCH-I800|SHW-M180L|SPH-P100|SGH-I987|zt180|HTC( Flyer|_Flyer)|Sprint ATP51|ViewPad7|pandigital(sprnova|nova)|Ideos S7|Dell Streak 7|Advent Vega|A101IT|A70BHT|MID7015|Next2|nook/i) || (ua.match(/MB511/i) && ua.match(/RUTEM/i))) {
+          return devices.tablet;
+        } else if (ua.match(/BOLT|Fennec|Iris|Maemo|Minimo|Mobi|mowser|NetFront|Novarra|Prism|RX-34|Skyfire|Tear|XV6875|XV6975|Google Wireless Transcoder/i)) {
+          return devices.phone;
+        } else if (ua.match(/Opera/i) && ua.match(/Windows NT 5/i) && ua.match(/HTC|Xda|Mini|Vario|SAMSUNG\-GT\-i8000|SAMSUNG\-SGH\-i9/i)) {
+          return devices.phone;
+        } else if ((ua.match(/Windows (NT|XP|ME|9)/) && !ua.match(/Phone/i)) && !ua.match(/Bot|Spider|ia_archiver|NewsGator/i) || ua.match(/Win( ?9|NT)/i)) {
+          return devices.desktop;
+        } else if (ua.match(/Macintosh|PowerPC/i) && !ua.match(/Silk/i)) {
+          return devices.desktop;
+        } else if (ua.match(/Linux/i) && ua.match(/X11/i) && !ua.match(/Charlotte/i)) {
+          return devices.desktop;
+        } else if (ua.match(/CrOS|Solaris|SunOS|BSD/i)) {
+          return devices.desktop;
+        }
+
+        return options.unknownUserAgentDeviceType;
+      }
+
+    };
+
+    if (typeof String.prototype.startsWith !== 'function') {
+      String.prototype.startsWith = function(str) {
+        return this.slice(0, str.length) === str;
+      };
+    }
+
+    Polymer({
+      is: 'messaging-service',
+      properties: {
+        clientLibPath: {
+          type: String,
+          value: '//cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.0/sockjs.min.js',
+          readOnly: true
+        },
+        scope: {
+          type: String,
+          value: 'local',
+          reflectToAttribute: true
+        },
+        endpoint: {
+          type: String,
+          value: 'http://134.109.193.78:9000',
+          reflectToAttribute: true,
+          observer: 'reconnect'
+        },
+        session: {
+          type: String,
+          value: window.location.hostname,
+          notify: true,
+          reflectToAttribute: true,
+          observer: 'sessionChanged'
+        },
+        clientName: {
+          type: String,
+          value: DeviceInfo.getName() + ' on ' + DeviceInfo.getOs(),
+          notify: true,
+          reflectToAttribute: true
+        },
+        deviceType: {
+          type: String,
+          notify: true,
+          value: DeviceInfo.getDeviceType()
+        },
+        clientId: {
+          type: String,
+          notify: true,
+          value: null
+        },
+        clients: {
+          type: Object,
+          notify: true,
+          value: []
+        },
+        connected: {
+          type: Boolean,
+          notify: true,
+          reflectToAttribute: true,
+          value: false,
+          readOnly: true
+        }
+      },
+
+      observers: [
+        'authenticate(clientName, clientId, deviceType)'
+      ],
+
+      created: function() {
+        if (typeof window.MessagingService !== 'object') window.MessagingService = { ConnectedEndpoints: [] };
+        this._messageHandler = (function(evt) {
+          var message = evt.detail;
+          if (!message.type || !message.type.startsWith(NAMESPACE) || message.origin === this.clientId) return;
+          this.sendMessage(message.type.slice(NAMESPACE.length), message.data, message.token);
+        }).bind(this);
+        this._sendAttributeChangedMessage = (function(evt) {
+          this.sendMessage('message', { type: 'linkedAttributeChanged', data: evt.detail });
+        }).bind(this);
+      },
+
+      attached: function() {
+        this.connect();
+        window.addEventListener('pubsub', this._messageHandler);
+        this.addEventListener('linkedAttributeChanged', this._sendAttributeChangedMessage);
+      },
+
+      detached: function() {
+        this.removeEventListener('linkedAttributeChanged', this._sendAttributeChangedMessage);
+        window.removeEventListener('pubsub', this._messageHandler);
+        this.disconnect();
+      },
+
+      reconnect: function() {
+        if (!this.isAttached) return;
+        this.disconnect();
+        this.connect();
+      },
+
+      disconnect: function() {
+        if (this.connected) {
+          this._setConnected(false);
+          this._socket.close();
+        }
+      },
+
+      connect: function() {
+        var _this = this;
+
+        if (typeof this.endpoint !== 'string' || this.connected) return;
+        if (~window.MessagingService.ConnectedEndpoints.indexOf(this.endpoint + '/#' + this.session)) return;
+
+        if (this.endpoint.startsWith('ws://') && typeof WebSocket === 'function') {
+          console.log('Using WebSocket');
+          this._socket = new WebSocket(this.endpoint);
+        } else if (typeof SockJS === 'function') {
+          console.log('Using SockJS');
+          this._socket = new SockJS(this.endpoint);
+        } else {
+          console.log('No Socket support. Loading SockJS library.');
+          loadScript(this.clientLibPath, this.connect.bind(this));
+          return;
+        }
+
+        window.MessagingService.ConnectedEndpoints.push(this.endpoint + '/#' + this.session);
+
+        this._socket.onopen = function() {
+          _this._setConnected(true);
+          _this._retryTime = 1000;
+        };
+        this._socket.onclose = function() {
+          window.MessagingService.ConnectedEndpoints.splice(window.MessagingService.ConnectedEndpoints.indexOf(_this.endpoint + '/#' + _this.session), 1);
+          _this.clients = [];
+          _this._retryTime = _this._retryTime < 60000 ? _this._retryTime * 2 : _this._retryTime;
+          if (_this.isAttached && _this.connected) setTimeout(function() { _this.connect(); }, _this._retryTime);
+          _this._setConnected(false);
+          console.log('Connection closed');
+        };
+        this._socket.onmessage = function(message) {
+          try {
+            _this.handleMessage.call(_this, JSON.parse(message.data));
+          } catch (error) {
+            console.log(error);
+          }
+        };
+        this._socket.onerror = function(error) {
+          console.log('ERROR', error);
+        };
+      },
+
+      handleMessage: function(message) {
+        if (!message.type.startsWith(NAMESPACE)) return;
+        switch (message.type.slice(NAMESPACE.length)) {
+          case 'authentication.request':
+            this.authenticate();
+            break;
+          case 'authentication.answer':
+            if (message.data.id       && this.clientId    !== message.data.id)      this.clientId   = message.data.id;
+            if (message.data.name     && this.clientName  !== message.data.name)    this.clientName = message.data.name;
+            if (message.data.session  && this.session     !== message.data.session) this.session    = message.data.session;
+            break;
+          case 'clients':
+            this.clients = message.data.clients;
+            break;
+          case 'message':
+            if (message.data.type === 'linkedAttributeChanged') {
+              var t = message.data.data;
+              var elements = document.querySelectorAll(t.selector);
+              for (var i = 0, c = elements.length; i < c; i++) {
+                if (t.value !== elements[i].getAttribute(t.attribute)) elements[i].setAttribute(t.attribute, t.value);
+              }
+            } else {
+              message.origin = this.clientId;
+              var topicParts = ['pubsub'];
+              this.fire('pubsub', message, {node: window});
+              message.data.topic.split('.').filter(function(n) { return n !== ''; }).forEach(function(t) {
+                topicParts.push(t);
+                message.data.topic = topicParts.slice(1).join('.');
+                this.fire(topicParts.join('.'), message, {node: window});
+              }, this);
+            }
+            break;
+          case 'move-tile':
+            if (!~message.data.type.indexOf('-') || document.createElement(message.data.type).constructor !== HTMLElement) {
+              addElement(message.data);
+            } else if (message.data.location) {
+              var l = document.createElement('link');
+              l.rel = 'import';
+              l.href = message.data.location;
+              l.addEventListener('load', function() { addElement(message.data); });
+              document.head.appendChild(l);
+            }
+            break;
+          case 'ping':
+            this.sendMessage('pong');
+            break;
+          case 'error':
+            console.log(message.data);
+            break;
+          default:
+            break;
+        }
+      },
+
+      sendMessage: function(type, message, token) {
+        if (!this.connected) return;
+        message = typeof message === 'undefined' ? null : message;
+        if (message) {
+          this._socket.send(JSON.stringify({ type: NAMESPACE + type, data: message, token: token }));
+        } else {
+          this._socket.send(JSON.stringify({ type: NAMESPACE + type }));
+        }
+      },
+
+      sessionChanged: function(newVal, oldVal) {
+        if (!this.connected) return;
+        window.MessagingService.ConnectedEndpoints.splice(window.MessagingService.ConnectedEndpoints.indexOf(this.endpoint + '/#' + oldVal), 1);
+        if (~window.MessagingService.ConnectedEndpoints.indexOf(this.endpoint + '/#' + this.session)) {
+          this.session = oldVal;
+        } else {
+          window.MessagingService.ConnectedEndpoints.push(this.endpoint + '/#' + this.session);
+          this.authenticate();
+        }
+      },
+
+      authenticate: function() {
+        this.sendMessage('authentication', { id: this.clientId, name: this.clientName, session: this.session, type: this.deviceType });
+      },
+
+      migrateComponent: function(component, client, copy) {
+        this.sendMessage('move-tile', {
+          client:    typeof client === 'object' ? client.id : client,
+          type:      component.tagName.toLowerCase(),
+          id:        component.id,
+          css:       component.style.cssText,
+          className: component.className,
+          location:  component.fileLocation,
+          state:     getState(component),
+          content:   Polymer.dom(component).innerHTML
+        });
+        if (!copy) component.remove();
+      }
+    });
+
+  })();
+  </script>
+
+</dom-module>

@@ -1,0 +1,139 @@
+<dom-module id="simple-chart">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+      }
+      #chart {
+        width: 100%;
+        height: 100%;
+      }
+      canvas {
+        width: 100%;
+        height: 100%;
+        display: inline-block;
+        vertical-align: middle;
+      }
+      span {
+        width: 2em;
+        height: 100%;
+        line-height: 100%;
+        display: inline-block;
+      }
+    </style>
+
+    <div id="chart">
+      <canvas id="canvas"></canvas>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'simple-chart',
+      behaviors: [Polymer.InteractionBehavior],
+      fileLocation: 'components/simple-chart-element.html',
+      properties: {
+        min: {
+          type: Number,
+          value: 0,
+          notify: true,
+          reflectToAttribute: true
+        },
+        max: {
+          type: Number,
+          value: 100,
+          notify: true,
+          reflectToAttribute: true
+        },
+        value: {
+          type: Number,
+          value: 50,
+          notify: true,
+          reflectToAttribute: true,
+          observer: 'valueChanged'
+        },
+        type: {
+          type: String,
+          value: 'bar',
+          notify: true,
+          reflectToAttribute: true,
+          observer: 'typeChanged'
+        }
+      },
+      observers: [
+        'minmaxChanged(min, max)'
+      ],
+      drawDiagram: function() {
+        if (!this.type || !this.value) return;
+
+        var canvas = this.$.canvas;
+        if (canvas.getContext) {
+          var ctx = canvas.getContext('2d');
+
+          ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+          var red = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+          red.addColorStop(0, "rgba(169,3,41,1)");
+          red.addColorStop(1, "rgba(109,0,25,1)");
+
+          var gray = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+          gray.addColorStop(0, "rgba(0,0,0,0)");
+          gray.addColorStop(1, "rgba(0,0,0,.2)");
+
+          ctx.strokeStyle = "silver";
+
+          if (this.type == 'bar') {
+            ctx.fillStyle = gray;
+            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.fillStyle = red;
+            ctx.fillRect(0, 0, ((this.value - this.min) * ctx.canvas.width / (this.max - this.min)), ctx.canvas.height);
+            ctx.strokeRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+          } else if (this.type == 'temperature') {
+            ctx.fillStyle = gray;
+            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.fillStyle = red;
+            ctx.fillRect(0, ctx.canvas.height - ((this.value - this.min) * ctx.canvas.height / (this.max - this.min)), ctx.canvas.width, ctx.canvas.height);
+            ctx.strokeRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+          } else if (this.type == 'circle') {
+            var max = ctx.canvas.width < ctx.canvas.height ? ctx.canvas.width : ctx.canvas.height;
+            ctx.fillStyle = red;
+            ctx.beginPath();
+            ctx.arc(max / 2, max / 2, max / 2 - 2, - (Math.PI * 90 / 180), (this.value * (2 * Math.PI) / (this.max - this.min)) - (Math.PI * 90 / 180), false);
+            ctx.lineTo(max / 2, max / 2);
+            ctx.fill();
+            ctx.closePath();
+            ctx.fillStyle = gray;
+            ctx.beginPath();
+            ctx.arc(max / 2, max / 2, max / 2 - 2, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.stroke();
+            ctx.closePath();
+          }
+        }
+      },
+      typeChanged: function(oldVal, newVal) {
+        if (newVal != 'bar' || newVal != 'circle') this.type = oldVal;
+        this.drawDiagram();
+      },
+      minmaxChanged: function(oldVal, newVal) {
+        if (this.min > this.max) this.min = this.max;
+        this.drawDiagram();
+      },
+      valueChanged: function(oldVal, newVal) {
+        if (newVal > this.max) this.value = this.max;
+        if (newVal < this.min) this.value = this.min;
+        this.drawDiagram();
+      },
+      created: function() {
+      },
+      attached: function() {
+        this.$.canvas.width = parseInt(this.style.width);
+        this.$.canvas.height = parseInt(this.style.height);
+        this.drawDiagram();
+      },
+      detached: function() {
+      }
+    });
+  </script>
+
+</dom-module>
