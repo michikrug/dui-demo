@@ -58,26 +58,27 @@
       <option>Chemnitz</option>
       <option>Lugano</option>
     </select>
-    <input type="text" placeholder="Location" name="textInput" id="inpText" onchange="this.setAttribute('value', this.value)">
+    <input id="inpText" type="text" placeholder="Location" onchange="this.setAttribute('value', this.value)">
     <google-geocoder></google-geocoder>
     <current-weather></current-weather>
   </div>
 
   <div class="w50">
-    <input type="text" value="50" name="testInput" id="inpTest" onchange="this.setAttribute('value', this.value)">
-    <input type="range" min="0" max="100" value="50" name="testInput2" id="inpTest2" onchange="this.setAttribute('value', this.value)">
+    <input id="inpTest" type="text" value="50" onchange="this.setAttribute('value', this.value)">
+    <input id="inpTest2" type="range" min="0" max="100" value="50" onchange="this.setAttribute('value', this.value)">
   </div>
 
   <div class="w50">
-    <simple-chart type="temperature" id="chart3" value="25" min="-10" max="50" style="width:30px; height:200px"></simple-chart>
+    <simple-chart id="chart3" type="temperature" value="25" min="-10" max="50" style="width:30px; height:200px"></simple-chart><br>
+    <input id="inpTemp" type="text" readonly value="25 Degrees">
   </div>
 
   <div class="w50">
-    <simple-chart type="circle" id="chart2" value="5" min="0" max="200" style="width:200px; height:200px"></simple-chart>
+    <simple-chart id="chart2" type="circle" value="5" min="0" max="200" style="width:200px; height:200px"></simple-chart>
   </div>
 
   <div class="w50">
-    <simple-chart type="bar" id="chart1" value="5" min="0" max="100" style="width:300px; height:30px"></simple-chart>
+    <simple-chart id="chart1" type="bar" value="5" min="0" max="100" style="width:300px; height:30px"></simple-chart>
   </div>
 
   <messaging-service endpoint="http://forelle.informatik.tu-chemnitz.de:9001">
@@ -96,6 +97,7 @@
     <attribute-link source="#inpText@value"         target="google-geocoder@address"></attribute-link>
     <attribute-link source="#inpText@value"         target="current-weather@city"></attribute-link>
     <attribute-link source="current-weather@temperature"   target="#chart3@value"></attribute-link>
+    <attribute-link source="current-weather@temperature"   target="#inpTemp@value" transformation="source + ' Degrees'"></attribute-link>
 
     <attribute-link source="google-geocoder@lat"    target="#gmap1@lat"></attribute-link>
     <attribute-link source="google-geocoder@lng"    target="#gmap1@lng"></attribute-link>

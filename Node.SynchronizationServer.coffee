@@ -124,7 +124,7 @@ server.addListener 'upgrade', (req, res) ->
   res.end()
   return
 
-sockjs_server = sockjs.createServer { sockjs_url: '//cdnjs.cloudflare.com/ajax/libs/sockjs-client/0.3.4/sockjs.min.js' }
+sockjs_server = sockjs.createServer { sockjs_url: '//cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.0/sockjs.min.js' }
 
 sockjs_server.on 'connection', (connection) ->
   console.log ' [*] Connection'

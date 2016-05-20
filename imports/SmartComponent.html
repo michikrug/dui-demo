@@ -31,23 +31,6 @@
       this._deactivatePubSubListener();
     },
 
-     // get state object by collecting all published properties
-    getState: function() {
-      var state = {};
-      this.properties && Object.getOwnPropertyNames(this.properties).forEach(function(prop) {
-        state[prop] = this[prop];
-      }, this);
-      return state;
-    },
-
-    // set state by setting properties to given values
-    setState: function(state) {
-      state && Object.getOwnPropertyNames(state).forEach(function(prop) {
-        if (this.properties[prop]) this[prop] = state[prop];
-      }, this);
-      return this;
-    },
-
     _initPubSub: function(state) {
       if (typeof this._pubsub_messageHandler === 'function') return;
       this._pubsub_id = Math.random().toString(36).substr(2, 17);
