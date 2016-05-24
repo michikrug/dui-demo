@@ -26,13 +26,14 @@
     *, *:before, *:after { box-sizing: inherit; }
     body { font-size: 16px; font-family: sans-serif; margin: 1em; background-color: #fff; }
     body > div { border: 1px solid #aaa; padding: 1em; vertical-align: top; margin: 1em; text-align: center; display: inline-block; width: calc(100% - 2em - 3px); }
-    body > div.w50 { width:calc(50% - 2em - 3px); }
+    body > div > * { vertical-align: middle; }
+    body > div.w50 { width: calc(50% - 2em - 3px); }
 
     @media (max-width: 900px) {
-      body > div { display:block; width:calc(100% - 2em - 3px) !important; }
+      body > div { display: block; width: calc(100% - 2em - 3px) !important; }
     }
     @media (min-width: 1400px) {
-      body > div.w50 { width:calc(33.333% - 2em - 3px); }
+      body > div.w50 { width: calc(33.333% - 2em - 3px); }
     }
     :-webkit-full-screen #container { padding: 1em; }
     :-moz-full-screen #container { padding: 1em; }
@@ -50,7 +51,7 @@
   </div>
 
   <div class="w50">
-    <google-map id="gmap2" lat="52.1" lng="12.3" style="width:300px; height:300px"></google-map>
+    <google-map id="gmap2" lat="52.1" lng="12.3" map-type="satellite" style="width:300px; height:300px"></google-map>
   </div>
 
   <div class="w50">

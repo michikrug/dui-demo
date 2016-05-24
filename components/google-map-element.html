@@ -60,6 +60,13 @@
             notify: true,
             reflectToAttribute: true,
             observer: 'zoomChanged'
+          },
+          mapType: {
+            type: String,
+            value: 'roadmap',
+            notify: true,
+            reflectToAttribute: true,
+            observer: 'mapTypeChanged'
           }
         },
         observers: [
@@ -70,6 +77,14 @@
         },
         zoomChanged: function() {
           this._map && this._map.setZoom(this.zoom);
+        },
+        mapTypeChanged: function() {
+          if (!this._map) return;
+          var t = this.mapType = this.mapType.toLowerCase();
+          if (t != 'satellite' && t != 'hybrid' && t != 'terrain') {
+            this.mapType = google.maps.MapTypeId.ROADMAP.toLowerCase();
+          }
+          this._map.setMapTypeId(this.mapType);
         },
         created: function() {
           window.addEventListener('gmapsLoaded', this.createMap.bind(this));
@@ -93,7 +108,7 @@
           var _this = this, gmap = this.$.gmap;
           if (typeof google !== 'object' || !google.maps || this._map) return;
 
-          this._map = new google.maps.Map(gmap, { zoom: this.zoom, disableDefaultUI: true, mapTypeControl: true });
+          this._map = new google.maps.Map(gmap, { zoom: this.zoom, disableDefaultUI: true, mapTypeControl: true, mapTypeId: this.mapType});
 
           google.maps.event.addListener(this._map, 'drag', function() {
             var center = this.getCenter();
@@ -103,6 +118,10 @@
 
           google.maps.event.addListener(this._map, 'zoom_changed', function() {
             _this.zoom = this.getZoom();
+          });
+
+          google.maps.event.addListener(this._map, 'maptypeid_changed', function() {
+            _this.mapType = this.getMapTypeId();
           });
 
           gmap.addEventListener('resize', function(e) {
