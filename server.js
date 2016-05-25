@@ -1,6 +1,12 @@
-var connect = require('connect'),
-    serveStatic = require('serve-static');
+var finalhandler = require('finalhandler'),
+	http = require('http'),
+	serveStatic = require('serve-static');
 
-var app = connect();
-app.use(serveStatic("."));
-app.listen(80);
+var serve = serveStatic('.', {'index': ['index.html']});
+
+var server = http.createServer(function(req, res){
+  var done = finalhandler(req, res);
+  serve(req, res, done);
+})
+
+server.listen(80);

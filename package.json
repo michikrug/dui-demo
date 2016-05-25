@@ -16,7 +16,7 @@
   },
   "homepage": "https://github.com/michikrug/dui-demo#readme",
   "dependencies": {
-    "connect": "^3.4.1",
+    "finalhandler": "^0.4.1",
     "serve-static": "^1.10.2",
     "smartcomposition": "git://github.com/michikrug/SmartComposition.git#develop"
   }
