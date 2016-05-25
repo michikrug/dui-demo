@@ -1,0 +1,87 @@
+<dom-module id="content-switcher">
+
+  <style>
+    :host {
+      display: inline-block;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      position: relative;
+    }
+  </style>
+
+  <template>
+    <content select="some-content"></content>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'content-switcher',
+      behaviors: [Polymer.InteractionBehavior],
+      fileLocation: 'components/content-switcher-element.html',
+      properties: {
+        activeContent: {
+          type: String,
+          reflectToAttribute: true,
+          observer: 'switchContent'
+        }
+      },
+      switchContent: function() {
+        if (!this.isAttached) return;
+        Polymer.dom(this).querySelector('some-content').style.display = 'none';
+        Polymer.dom(this).querySelector('some-content[name="' + this.activeContent + '"]').style.display = '';
+      }
+    });
+  </script>
+
+</dom-module>
+
+<dom-module id="navigation-pane">
+
+  <style>
+    :host {
+      display: inline-block;
+    }
+    ::content a {
+      margin-top: 2em;
+      display: inline-block;
+      text-decoration: none;
+    }
+    ::content a:after {
+      content: "|";
+      padding: 0 1em;
+      color: initial;
+
+    }
+    ::content a:last-child:after {
+      content: "";
+    }
+  </style>
+
+  <template>
+    <content select="a"></content>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'navigation-pane',
+      behaviors: [Polymer.InteractionBehavior],
+      fileLocation: 'components/content-switcher-element.html',
+      properties: {
+        activeLink: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        }
+      },
+      ready: function() {
+        var _this = this;
+        var a = Polymer.dom(this).querySelectorAll('a');
+        a.forEach(function(l) {
+          l.addEventListener('click', function(e) { _this.activeLink = e.target.href; e.preventDefault(); })
+        })
+      }
+    });
+  </script>
+
+</dom-module>

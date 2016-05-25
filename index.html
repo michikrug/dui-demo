@@ -8,18 +8,17 @@
 
   <script>Polymer = {dom: 'shadow'};</script>
 
-  <script src="imports/webcomponents-lite.min.js"></script>
+  <script src="smartcomposition/bower_components/webcomponentsjs/webcomponents.min.js"></script>
 
-  <link rel="import" href="imports/polymer.html">
-  <link rel="import" href="imports/SmartComponent.html">
-
-  <link rel="import" href="components/AttributeLink.html">
-  <link rel="import" href="components/MessagingService.html">
+  <link rel="import" href="smartcomposition/SmartComponent.html">
+  <link rel="import" href="smartcomposition/AttributeLink.html">
+  <link rel="import" href="smartcomposition/MessagingService.html">
 
   <link rel="import" href="components/google-map-element.html">
   <link rel="import" href="components/google-geocoder-element.html">
   <link rel="import" href="components/current-weather-element.html">
   <link rel="import" href="components/simple-chart-element.html">
+  <link rel="import" href="components/content-switcher-element.html">
 
   <style>
     html { box-sizing: border-box; }
@@ -41,17 +40,35 @@
     :-webkit-full-screen { position: fixed !important; top: 0 !important; left: 0 !important; font-size: 1.5em; width: 100% !important; height: 100% !important; max-height: none !important; max-width: none !important; background: #fff; }
     :-moz-full-screen { position: fixed !important; top: 0 !important; left: 0 !important; font-size: 1.5em; width: 100% !important; height: 100% !important; max-height: none !important; max-width: none !important; background: #fff; }
     :-ms-fullscreen { position: fixed !important; top: 0 !important; left: 0 !important; font-size: 1.5em; width: 100% !important; height: 100% !important; max-height: none !important; max-width: none !important; background: #fff; }
+
+    content-switcher, google-map {
+      width: 300px;
+      height: 300px;
+    }
   </style>
 
 </head>
 <body>
 
+  <navigation-pane>
+    <a href="#map">Show map</a>
+    <a href="#temp">Show temperature</a>
+  </navigation-pane>
+
   <div class="w50">
-    <google-map id="gmap1" lat="52.1" lng="12.3" style="width:300px; height:300px"></google-map>
+    <content-switcher active-content="map">
+      <some-content name="map">
+        <google-map id="gmap1" lat="52.1" lng="12.3"></google-map>
+      </some-content>
+      <some-content name="temp">
+        <simple-chart id="chart3" type="temperature" value="25" min="-10" max="50" style="width:30px;height:300px"></simple-chart>
+        <input id="inpTemp" type="text" readonly value="25 Degrees" style="width:70px">
+      </some-content>
+    </content-switcher>
   </div>
 
   <div class="w50">
-    <google-map id="gmap2" lat="52.1" lng="12.3" map-type="satellite" style="width:300px; height:300px"></google-map>
+    <google-map id="gmap2" lat="52.1" lng="12.3" map-type="satellite"></google-map>
   </div>
 
   <div class="w50">
@@ -70,11 +87,6 @@
   </div>
 
   <div class="w50">
-    <simple-chart id="chart3" type="temperature" value="25" min="-10" max="50" style="width:30px; height:200px"></simple-chart><br>
-    <input id="inpTemp" type="text" readonly value="25 Degrees">
-  </div>
-
-  <div class="w50">
     <simple-chart id="chart2" type="circle" value="5" min="0" max="200" style="width:200px; height:200px"></simple-chart>
   </div>
 
@@ -83,6 +95,8 @@
   </div>
 
   <messaging-service endpoint="http://forelle.informatik.tu-chemnitz.de:9001">
+    <attribute-link source="navigation-pane@active-link" target="content-switcher@active-content" transformation="source.split('#')[1]"></attribute-link>
+
     <attribute-link source="#inpTest@value"   target="#chart1@value"></attribute-link>
     <attribute-link source="#inpTest@value"   target="#chart2@value"></attribute-link>
     <attribute-link source="#inpTest@value"   target="#inpTest2@value"></attribute-link>
