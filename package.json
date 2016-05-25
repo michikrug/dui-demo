@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "description": "DUI Demo",
   "scripts": {
-    "start": "sudo node server.js & sudo node smartcomposition/Node.SynchronizationServer.js",
+    "start": "sudo node server.js & sudo node smartcomposition/MessagingServer.js",
     "postinstall": "node -e \"var srcpath='node_modules/smartcomposition';var dstpath='smartcomposition';var fs=require('fs');fs.readlink(dstpath,function(err, existLink){if(!existLink){fs.symlinkSync(srcpath, dstpath,'dir');}});\""
   },
   "repository": {
