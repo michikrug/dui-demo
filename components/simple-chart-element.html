@@ -111,15 +111,16 @@
           }
         }
       },
-      typeChanged: function(oldVal, newVal) {
-        if (newVal != 'bar' || newVal != 'circle') this.type = oldVal;
+      typeChanged: function(newVal, oldVal) {
+        if (typeof oldVal === 'undefined') oldVal = 'bar';
+        if (newVal != 'bar' && newVal != 'circle' && newVal != 'temperature') this.type = oldVal;
         this.drawDiagram();
       },
-      minmaxChanged: function(oldVal, newVal) {
+      minmaxChanged: function() {
         if (this.min > this.max) this.min = this.max;
         this.drawDiagram();
       },
-      valueChanged: function(oldVal, newVal) {
+      valueChanged: function(newVal) {
         if (newVal > this.max) this.value = this.max;
         if (newVal < this.min) this.value = this.min;
         this.drawDiagram();
