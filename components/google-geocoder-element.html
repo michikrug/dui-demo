@@ -22,10 +22,35 @@
         document.body.appendChild(s);
       };
 
+      function equals(a1, a2) {
+        return a1.length == a2.length && a1.every(function(v, i) { return v === a2[i]; });
+      }
+
+      function find(a, o) {
+        return a.find(function(e) {
+          var f = true;
+          for (var k in o) {
+            if (typeof o[k] == "object" && o[k].length) {
+              f = equals(o[k], e[k]);
+            } else if (typeof o[k] == "object") {
+              //
+            } else {
+              f = o[k] == e[k];
+            }
+          }
+          return f;
+        })
+      }
+
       Polymer({
         is: 'google-geocoder',
         fileLocation: 'components/google-geocoder-element.html',
         properties: {
+          reverse: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
+          },
           address: {
             type: String,
             reflectToAttribute: true,
@@ -44,11 +69,24 @@
           coordinates: {
             type: Object,
             reflectToAttribute: true,
-            notify: true
+            notify: true,
+            observer: 'coordinatesChanged'
           }
         },
+        observers: [
+          'latlngChanged(lat, lng)'
+        ],
         addressChanged: function() {
-          this.address && this.queryAddress(this.address);
+          this.address && this.geocodeAddress(this.address);
+        },
+        latlngChanged: function() {
+          this.lat && this.lng && this.geocodeLatLng(this.lat, this.lng);
+        },
+        coordinatesChanged: function() {
+          if (this.coordinates && this.coordinates.lat &&  this.coordinates.lng) {
+            this.lat = this.coordinates.lat;
+            this.lng = this.coordinates.lng;
+          }
         },
         created: function() {
           window.addEventListener('gmapsLoaded', this.initGeocoder.bind(this));
@@ -59,10 +97,25 @@
         initGeocoder: function() {
           if (typeof google !== 'object' || !google.maps) return;
           this._geocoder = new google.maps.Geocoder();
-          this.addressChanged();
+          this.reverse && this.latlngChanged() || this.addressChanged();
         },
-        queryAddress: function(address) {
-          var _this = this;
+        geocodeLatLng: function(lat, lng) {
+          if (!this.reverse) return;
+          if (!this._geocoder) {
+            this.initGeocoder();
+            return;
+          }
+          this._geocoder.geocode({ 'location': { lat: parseFloat(lat), lng: parseFloat(lng) } }, function(results, status) {
+            if (status === google.maps.GeocoderStatus.OK && results[0]) {
+              var locality = find(results[0].address_components, { "types" : [ "locality", "political" ] });
+              if (!locality) locality = find(results[0].address_components, { "types" : [ " administrative_area_level_2", "political" ] });
+              var country = find(results[0].address_components, { "types" : [ "country", "political" ] }).long_name;
+              this.address = locality.long_name + ', ' + country;
+            }
+          }.bind(this));
+        },
+        geocodeAddress: function(address) {
+          if (this.reverse) return;
           if (!this._geocoder) {
             this.initGeocoder();
             return;
@@ -70,11 +123,9 @@
           this._geocoder.geocode({ 'address': address }, function(results, status) {
             if (status === google.maps.GeocoderStatus.OK) {
               var center = results[0].geometry.location;
-              _this.lat = center.lat();
-              _this.lng = center.lng();
-              _this.coordinates = { lat: _this.lat, lng: _this.lng };
+              this.coordinates = { lat: center.lat(), lng: center.lng() };
             }
-          });
+          }.bind(this));
         }
       });
   })();

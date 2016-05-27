@@ -52,7 +52,7 @@
 
   <navigation-pane>
     <a href="#map">Show map</a>
-    <a href="#temp">Show temperature</a>
+    <a href="#inputs">Show inputs</a>
   </navigation-pane>
 
   <div class="w50">
@@ -60,24 +60,25 @@
       <some-content name="map">
         <google-map id="gmap1" lat="52.1" lng="12.3"></google-map>
       </some-content>
-      <some-content name="temp">
-        <simple-chart id="chart3" type="temperature" value="25" min="-10" max="50" style="width:30px;height:300px"></simple-chart>
-        <input id="inpTemp" type="text" readonly value="25 Degrees" style="width:70px">
+      <some-content name="inputs">
+        <select id="cityselect" onchange="this.setAttribute('value', this.value)">
+          <option>Chemnitz</option>
+          <option>Lugano</option>
+        </select>
+        <input id="inpText" type="text" placeholder="Location" onchange="this.setAttribute('value', this.value)">
+        <google-geocoder id="geocoder"></google-geocoder>
       </some-content>
     </content-switcher>
   </div>
 
   <div class="w50">
     <google-map id="gmap2" lat="52.1" lng="12.3" map-type="satellite"></google-map>
+    <google-geocoder id="geocoder-reverse" reverse></google-geocoder>
   </div>
 
   <div class="w50">
-    <select id="cityselect" onchange="this.setAttribute('value', this.value)">
-      <option>Chemnitz</option>
-      <option>Lugano</option>
-    </select>
-    <input id="inpText" type="text" placeholder="Location" onchange="this.setAttribute('value', this.value)">
-    <google-geocoder></google-geocoder>
+    <simple-chart id="chart3" type="temperature" value="25" min="-10" max="50" style="width:30px;height:300px"></simple-chart>
+    <input id="inpTemp" type="text" readonly value="25 Degrees" style="width:70px">
     <current-weather></current-weather>
   </div>
 
@@ -97,25 +98,32 @@
   <messaging-service endpoint="http://forelle.informatik.tu-chemnitz.de:9001">
     <attribute-link source="navigation-pane@active-link" target="content-switcher@active-content" transformation="source.split('#')[1]"></attribute-link>
 
-    <attribute-link source="#inpTest@value"   target="#chart1@value"></attribute-link>
-    <attribute-link source="#inpTest@value"   target="#chart2@value"></attribute-link>
-    <attribute-link source="#inpTest@value"   target="#inpTest2@value"></attribute-link>
+    <attribute-link source="#inpTest@value" target="#chart1@value"></attribute-link>
+    <attribute-link source="#inpTest@value" target="#chart2@value"></attribute-link>
+    <attribute-link source="#inpTest@value" target="#inpTest2@value"></attribute-link>
 
-    <attribute-link source="#inpTest2@value"  target="#chart1@value"></attribute-link>
-    <attribute-link source="#inpTest2@value"  target="#inpTest@value"></attribute-link>
+    <attribute-link source="#inpTest2@value" target="#chart1@value"></attribute-link>
+    <attribute-link source="#inpTest2@value" target="#inpTest@value"></attribute-link>
 
-    <attribute-link source="#gmap1@lat"       target="#gmap2@lat"></attribute-link>
-    <attribute-link source="#gmap1@lng"       target="#gmap2@lng"></attribute-link>
-    <attribute-link source="#gmap1@zoom"       target="#gmap2@zoom"></attribute-link>
+    <attribute-link source="#gmap1@lat"  target="#gmap2@lat"></attribute-link>
+    <attribute-link source="#gmap1@lng"  target="#gmap2@lng"></attribute-link>
+    <attribute-link source="#gmap1@zoom" target="#gmap2@zoom"></attribute-link>
 
-    <attribute-link source="#cityselect@value"      target="#inpText@value"></attribute-link>
-    <attribute-link source="#inpText@value"         target="google-geocoder@address"></attribute-link>
-    <attribute-link source="#inpText@value"         target="current-weather@city"></attribute-link>
-    <attribute-link source="current-weather@temperature"   target="#chart3@value"></attribute-link>
-    <attribute-link source="current-weather@temperature"   target="#inpTemp@value" transformation="source + ' Degrees'"></attribute-link>
+    <attribute-link source="#cityselect@value" target="#inpText@value"></attribute-link>
+    <attribute-link source="#inpText@value"    target="#geocoder@address"></attribute-link>
+    <attribute-link source="#inpText@value"    target="current-weather@city"></attribute-link>
+    <attribute-link source="current-weather@temperature" target="#chart3@value"></attribute-link>
+    <attribute-link source="current-weather@temperature" target="#inpTemp@value" transformation="source + ' Degrees'"></attribute-link>
 
-    <attribute-link source="google-geocoder@lat"    target="#gmap1@lat"></attribute-link>
-    <attribute-link source="google-geocoder@lng"    target="#gmap1@lng"></attribute-link>
+    <attribute-link source="#geocoder@lat" target="#gmap1@lat"></attribute-link>
+    <attribute-link source="#geocoder@lng" target="#gmap1@lng"></attribute-link>
+
+    <attribute-link source="#gmap1@lat" target="#geocoder-reverse@lat"></attribute-link>
+    <attribute-link source="#gmap1@lng" target="#geocoder-reverse@lng"></attribute-link>
+
+    <attribute-link source="#geocoder-reverse@address"    target="current-weather@city"></attribute-link>
+
+
   </messaging-service>
 
 </body>
