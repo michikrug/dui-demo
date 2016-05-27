@@ -67,6 +67,11 @@
             notify: true,
             reflectToAttribute: true,
             observer: 'mapTypeChanged'
+          },
+          continuous: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
           }
         },
         observers: [
@@ -110,7 +115,15 @@
 
           this._map = new google.maps.Map(gmap, { zoom: this.zoom, disableDefaultUI: true, mapTypeControl: true, mapTypeId: this.mapType});
 
-          google.maps.event.addListener(this._map, 'drag', function() {
+          google.maps.event.addListener(this._map, 'dragend', function() {
+            if (_this.continuous) return;
+            var center = this.getCenter();
+            _this.lat = center.lat();
+            _this.lng = center.lng();
+          });
+
+          google.maps.event.addListener(this._map, 'center_changed', function() {
+            if (!_this.continuous) return;
             var center = this.getCenter();
             _this.lat = center.lat();
             _this.lng = center.lng();
