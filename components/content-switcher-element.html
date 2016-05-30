@@ -47,14 +47,10 @@
       display: inline-block;
       text-decoration: none;
     }
-    ::content a:after {
+    ::content a:not(:last-child):after {
       content: "|";
       padding: 0 1em;
       color: initial;
-
-    }
-    ::content a:last-child:after {
-      content: "";
     }
   </style>
 
