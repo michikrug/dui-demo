@@ -1,0 +1,11 @@
+{
+  "google": {
+    "client_id": "",
+    "client_secret": "",
+    "refresh_token": "",
+    "grant_type": "refresh_token"
+  },
+  "twitter": {
+    "access_token": ""
+  }
+}

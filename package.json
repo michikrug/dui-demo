@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "description": "DUI Demo",
   "scripts": {
-    "start": "sudo node server.js & sudo node smartcomposition/MessagingServer.js",
+    "start": "node server.js & node smartcomposition/MessagingServer.js",
     "postinstall": "node -e \"var srcpath='node_modules/smartcomposition';var dstpath='smartcomposition';var fs=require('fs');fs.readlink(dstpath,function(err, existLink){if(!existLink){fs.symlinkSync(srcpath, dstpath,'dir');}});\""
   },
   "repository": {
@@ -17,7 +17,10 @@
   "homepage": "https://github.com/michikrug/dui-demo#readme",
   "dependencies": {
     "finalhandler": "^0.4.1",
+    "jsonfile": "^2.3.1",
+    "request": "^2.72.0",
     "serve-static": "^1.10.2",
-    "smartcomposition": "git://github.com/michikrug/SmartComposition.git#develop"
+    "smartcomposition": "git://github.com/michikrug/SmartComposition.git#develop",
+    "url": "^0.11.0"
   }
 }
