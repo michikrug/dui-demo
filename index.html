@@ -101,7 +101,6 @@
     <attribute-link source="#inpTest@value" target="#chart1@value"></attribute-link>
     <attribute-link source="#inpTest@value" target="#chart2@value"></attribute-link>
     <attribute-link source="#inpTest@value" target="#inpTest2@value"></attribute-link>
-
     <attribute-link source="#inpTest2@value" target="#chart1@value"></attribute-link>
     <attribute-link source="#inpTest2@value" target="#inpTest@value"></attribute-link>
 
@@ -109,21 +108,19 @@
     <attribute-link source="#gmap1@lng"  target="#gmap2@lng"></attribute-link>
     <attribute-link source="#gmap1@zoom" target="#gmap2@zoom"></attribute-link>
 
-    <attribute-link source="#cityselect@value" target="#inpText@value"></attribute-link>
-    <attribute-link source="#inpText@value"    target="#geocoder@address"></attribute-link>
-    <attribute-link source="#inpText@value"    target="current-weather@city"></attribute-link>
-    <attribute-link source="current-weather@temperature" target="#chart3@value"></attribute-link>
-    <attribute-link source="current-weather@temperature" target="#inpTemp@value" transformation="source + ' Degrees'"></attribute-link>
+    <attribute-link source="#gmap1@lat" target="#geocoder-reverse@lat"></attribute-link>
+    <attribute-link source="#gmap1@lng" target="#geocoder-reverse@lng"></attribute-link>
+    <attribute-link source="#geocoder-reverse@address" target="current-weather@city"></attribute-link>
 
+    <attribute-link source="#cityselect@value" target="#inpText@value"></attribute-link>
+
+    <attribute-link source="#inpText@value" target="#geocoder@address"></attribute-link>
     <attribute-link source="#geocoder@lat" target="#gmap1@lat"></attribute-link>
     <attribute-link source="#geocoder@lng" target="#gmap1@lng"></attribute-link>
 
-    <attribute-link source="#gmap1@lat" target="#geocoder-reverse@lat"></attribute-link>
-    <attribute-link source="#gmap1@lng" target="#geocoder-reverse@lng"></attribute-link>
-
-    <attribute-link source="#geocoder-reverse@address"    target="current-weather@city"></attribute-link>
-
-
+    <attribute-link source="#inpText@value" target="current-weather@city"></attribute-link>
+    <attribute-link source="current-weather@temperature" target="#chart3@value"></attribute-link>
+    <attribute-link source="current-weather@temperature" target="#inpTemp@value" transformation="source + ' Degrees'"></attribute-link>
   </messaging-service>
 
 </body>
