@@ -80,7 +80,11 @@
           this.address && this.geocodeAddress(this.address);
         },
         latlngChanged: function() {
-          this.lat && this.lng && this.geocodeLatLng(this.lat, this.lng);
+          if (!this.lat || !this.lng) return;
+          this._timeout && clearTimeout(this._timeout);
+          this._timeout = setTimeout(function() {
+            this.geocodeLatLng(this.lat, this.lng)
+          }.bind(this), 250);
         },
         coordinatesChanged: function() {
           if (this.coordinates && this.coordinates.lat &&  this.coordinates.lng) {
