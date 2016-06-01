@@ -4,7 +4,6 @@
   "description": "DUI Demo",
   "scripts": {
     "start": "node smartcomposition/server.js & node smartcomposition/MessagingServer.js",
-    "postinstall": "node -e \"var srcpath='node_modules/smartcomposition';var dstpath='smartcomposition';var fs=require('fs');fs.readlink(dstpath,function(err, existLink){if(!existLink){fs.symlinkSync(srcpath, dstpath,'dir');}});\""
   },
   "repository": {
     "type": "git",
