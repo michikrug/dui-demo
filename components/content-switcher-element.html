@@ -8,6 +8,9 @@
       overflow: auto;
       position: relative;
     }
+    some-content {
+      display: none;
+    }
   </style>
 
   <template>
@@ -28,8 +31,11 @@
       },
       switchContent: function() {
         if (!this.isAttached) return;
-        Polymer.dom(this).querySelector('some-content').style.display = 'none';
+        [].map.call(Polymer.dom(this).querySelectorAll('some-content'), function(e) { e.style.display = 'none'; });
         Polymer.dom(this).querySelector('some-content[name="' + this.activeContent + '"]').style.display = '';
+      },
+      attached: function() {
+        this.switchContent();
       }
     });
   </script>
