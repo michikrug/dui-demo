@@ -52,12 +52,14 @@
 <body>
   <attribute-linker></attribute-linker><br>
 
-  <fieldset style="height:110px">
-    <navigation-pane>
-      <a href="#map">Show map</a>
-      <a href="#inputs">Show inputs</a>
-    </navigation-pane>
-  </fieldset>
+  <some-content>
+    <fieldset style="height:110px">
+      <navigation-pane>
+        <a href="#map">Show map</a>
+        <a href="#inputs">Show inputs</a>
+      </navigation-pane>
+    </fieldset>
+  </some-content>
 
   <content-switcher active-content="map">
     <some-content name="map">
@@ -79,35 +81,45 @@
     </some-content>
   </content-switcher>
 
-  <fieldset class="w50">
-    <legend>Satellite View</legend>
-    <google-map id="gmap2" lat="52.1" lng="12.3" map-type="hybrid"></google-map>
-    <google-geocoder id="geocoder-reverse" reverse></google-geocoder>
-  </fieldset>
+  <some-content>
+    <fieldset class="w50">
+      <legend>Satellite View</legend>
+      <google-map id="gmap2" lat="52.1" lng="12.3" map-type="hybrid"></google-map>
+      <google-geocoder id="geocoder-reverse" reverse></google-geocoder>
+    </fieldset>
+  </some-content>
 
-  <fieldset class="w20">
-    <legend>Temperatur</legend>
-    <simple-chart id="chart3" type="temperature" value="-10" min="-10" max="50" style="width:30px;height:250px"></simple-chart>
-    <input id="inpTemp" type="text" readonly value="" style="width:60px; border: none; font-size:1.1em">
-    <current-weather></current-weather>
-  </fieldset>
+  <some-content>
+    <fieldset class="w20">
+      <legend>Temperature</legend>
+      <simple-chart id="chart3" type="temperature" value="-10" min="-10" max="50" style="width:30px;height:250px"></simple-chart>
+      <input id="inpTemp" type="text" readonly value="" style="width:60px; border: none; font-size:1.1em">
+      <current-weather></current-weather>
+    </fieldset>
+  </some-content>
 
-  <fieldset class="w30">
-    <legend>Other Information</legend>
-    <wikipedia-extract></wikipedia-extract>
-  </fieldset>
+  <some-content>
+    <fieldset class="w30">
+      <legend>Other Information</legend>
+      <wikipedia-extract></wikipedia-extract>
+    </fieldset>
+  </some-content>
 
-  <fieldset class="w50">
-    <legend>Some Numeric Input Options</legend>
-    <input id="inpTest" type="text" value="50" onchange="this.setAttribute('value', this.value)"><br><br>
-    <input id="inpTest2" type="range" min="0" max="100" value="50" onchange="this.setAttribute('value', this.value)">
-  </fieldset>
+  <some-content>
+    <fieldset class="w50">
+      <legend>Some Numeric Input Options</legend>
+      <input id="inpTest" type="text" value="50" onchange="this.setAttribute('value', this.value)"><br><br>
+      <input id="inpTest2" type="range" min="0" max="100" value="50" onchange="this.setAttribute('value', this.value)">
+    </fieldset>
+  </some-content>
 
-  <fieldset class="w50">
-    <legend>Various Visualizations</legend>
-    <simple-chart id="chart2" type="circle" value="5" min="0" max="200" style="width:180px; height:180px"></simple-chart><br><br>
-    <simple-chart id="chart1" type="bar" value="5" min="0" max="100" style="width:300px; height:30px"></simple-chart>
-  </fieldset>
+  <some-content>
+    <fieldset class="w50">
+      <legend>Various Visualizations</legend>
+      <simple-chart id="chart2" type="circle" value="5" min="0" max="200" style="width:180px; height:180px"></simple-chart><br><br>
+      <simple-chart id="chart1" type="bar" value="5" min="0" max="100" style="width:300px; height:30px"></simple-chart>
+    </fieldset>
+  </some-content>
 
   <messaging-service endpoint="http://localhost:9001">
     <attribute-link source="navigation-pane@active-link" target="content-switcher@active-content" transformation="source.split('#')[1]"></attribute-link>
@@ -115,6 +127,7 @@
     <attribute-link source="#inpTest@value" target="#chart1@value"></attribute-link>
     <attribute-link source="#inpTest@value" target="#chart2@value"></attribute-link>
     <attribute-link source="#inpTest@value" target="#inpTest2@value"></attribute-link>
+    <attribute-link source="#inpTest2@value" target="#inpTest@value"></attribute-link>
 
     <attribute-link source="#gmap1@lat"  target="#gmap2@lat"></attribute-link>
     <attribute-link source="#gmap1@lng"  target="#gmap2@lng"></attribute-link>

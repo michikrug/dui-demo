@@ -42,6 +42,22 @@
 
 </dom-module>
 
+<dom-module id="some-content">
+
+  <template>
+    <content></content>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'some-content',
+      behaviors: [Polymer.InteractionBehavior],
+      fileLocation: 'components/content-switcher-element.html'
+    });
+  </script>
+
+</dom-module>
+
 <dom-module id="navigation-pane">
 
   <style>
