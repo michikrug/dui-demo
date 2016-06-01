@@ -1,0 +1,171 @@
+<dom-module id="attribute-linker">
+
+  <template>
+    <style>
+      #overlay, #form {
+        display: none;
+        z-index: 100;
+      }
+      #overlay {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        background: rgba(0,0,0,.5);
+      }
+      #form {
+        background-color: white;
+        position: fixed;
+        margin: 0 auto;
+        top: 40%;
+        left: 0;
+        right: 0;
+        width: 400px;
+        padding: 1.5em;
+      }
+      #form > .input-transformation {
+        display: none;
+      }
+      #form.target > .input-transformation {
+        display: block;
+      }
+    </style>
+
+    <button id="activate">Activate Attribute-Linker</button>
+    <button id="deactivate">Deactivate Attribute-Linker</button>
+
+    <div id="overlay"></div>
+    <div id="form">
+      <div class="select-attribute">
+        <label for="component-selection">Selected component: </label><select id="component-selection"></select><br>
+        <label for="attribute-selection">Select attribute: </label><select id="attribute-selection"></select>
+      </div>
+      <div class="input-transformation">
+        <label for="transformation">Transformation: </label><input type="text" id="transformation" placeholder="source" size="40">
+      </div>
+      <br>
+      <button>Select Target</button>
+    </div>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'attribute-linker',
+      properties: {
+        active: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false
+        }
+      },
+      createAttributeLink: function(sc, sa, tc, ta, t) {
+        var al = document.createElement('attribute-link');
+        al.source = sc + '@' + sa;
+        al.target = tc + '@' + ta;
+        if (t) al.transformation = t;
+        var p = document.querySelector('messaging-service') || document.body;
+        p.appendChild(al);
+      },
+      createSelector: function(element) {
+        var selector = element.tagName.toLowerCase();
+        if (element.id) selector += '#' + element.id;
+        var cn = element.className.split(' ').filter(function(a) { return a.slice(0, 3) != 'ui-'; }).join('.');
+        return cn ? selector + '.' + cn : selector;
+      },
+      getAttributes: function(element) {
+        var attributes = [];
+        if (element.tagName == 'INPUT' || element.tagName == 'SELECT') attributes.push('value');
+        element.properties && Object.getOwnPropertyNames(element.properties).forEach(function(prop) {
+          if (element.properties[prop].reflectToAttribute == true) {
+            attributes.push(prop.replace(/([A-Z])/g, '-$1').toLowerCase());
+          }
+        });
+        return attributes;
+      },
+      updateAttributeSelection: function(attributes) {
+        var attrsel = this.$.form.querySelector('#attribute-selection');
+        attrsel.innerHTML = '';
+        for (var a = 0, attr; attr = attributes[a]; a++) {
+          var o = document.createElement('option');
+          o.innerHTML = attr;
+          attrsel.appendChild(o);
+        }
+      },
+      initalize: function() {
+        this.state = 0;
+        var _this = this;
+        var form = this.$.form;
+        var ov = this.$.overlay;
+        var elements = document.body.querySelectorAll('*:not(script):not(a):not(some-content):not(fieldset):not(legend):not(h2):not(br):not(button):not(option):not(label):not(track):not(source):not(div):not(messaging-service):not(attribute-link):not(attribute-linker)');
+
+        this.$.activate.addEventListener('click', function(e) { _this.active = true; });
+        this.$.deactivate.addEventListener('click', function(e) { _this.active = false; });
+
+        ov.addEventListener('click', function(e) { ov.style.display = form.style.display = 'none'; });
+
+        form.querySelector('button').addEventListener('click', function(e) {
+          ov.style.display = form.style.display = 'none';
+          if (_this.state == 1) {
+            _this.state = 0;
+            _this.targetComponent = form.querySelector('#component-selection').value;
+            _this.targetAttribute = form.querySelector('#attribute-selection').value;
+            _this.transformation = form.querySelector('#transformation').value;
+            form.classList.remove('target');
+            this.innerHTML = 'Select Target';
+            _this.createAttributeLink(_this.sourceComponent, _this.sourceAttribute, _this.targetComponent, _this.targetAttribute, _this.transformation);
+          } else {
+            _this.state = 1;
+            _this.sourceComponent = form.querySelector('#component-selection').value;
+            _this.sourceAttribute = form.querySelector('#attribute-selection').value;
+            form.classList.add('target');
+            this.innerHTML = 'Create Link';
+          }
+        });
+
+        var compsel = form.querySelector('#component-selection');
+        compsel.addEventListener('change', function() {
+          _this.updateAttributeSelection(_this.getAttributes(document.querySelector(this.value)));
+        });
+        compsel.innerHTML = '';
+        for (var i = 0, element; element = elements[i]; i++) {
+          if (element.id == "component-selection" || element.id == "attribute-selection" || element.id == "transformation") continue;
+
+          var o = document.createElement('option');
+          o.innerHTML = _this.createSelector(element);
+          compsel.appendChild(o);
+
+          element.addEventListener('click', function(e) {
+            if (!_this.active) return;
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            compsel.value = _this.createSelector(this);
+            _this.updateAttributeSelection(_this.getAttributes(document.querySelector(compsel.value)));
+            ov.style.display = form.style.display = 'block';
+          });
+          element.addEventListener('mouseover', function() {
+            if (!_this.active) return;
+            this._oldStyle = { border: this.style.border || '', background: this.style.background || '' };
+            this.style.border = '2px solid #DD4A68';
+            this.style.background = 'rgba(221, 74, 104, .5)';
+          });
+          element.addEventListener('mouseout', function() {
+            if (!_this.active) return;
+            this.style.border = this._oldStyle.border;
+            this.style.background = this._oldStyle.background;
+          });
+        }
+      },
+      ready: function() {
+        this.sourceComponent = '';
+        this.sourceAttribute = '';
+        this.targetComponent = '';
+        this.targetAttribute = '';
+        this.transformation = '';
+        this.initalize();        
+      }
+    });
+  </script>
