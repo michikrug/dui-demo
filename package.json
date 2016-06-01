@@ -3,7 +3,7 @@
   "version": "0.0.3",
   "description": "DUI Demo",
   "scripts": {
-    "start": "node smartcomposition/server.js & node smartcomposition/MessagingServer.js",
+    "start": "node smartcomposition/server.js & node smartcomposition/MessagingServer.js"
   },
   "repository": {
     "type": "git",
