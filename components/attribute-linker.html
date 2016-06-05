@@ -35,6 +35,7 @@
 
     <button id="activate">Activate Attribute-Linker</button>
     <button id="deactivate">Deactivate Attribute-Linker</button>
+    <button id="remove">Remove all Attribute-Links</button>
 
     <div id="overlay"></div>
     <div id="form">
@@ -94,15 +95,51 @@
           attrsel.appendChild(o);
         }
       },
+      updateElementList: function() {
+        var _this = this;
+        var elements = Array.from(document.body.querySelectorAll('*:not(script):not(a):not(some-content):not(fieldset):not(legend):not(h2):not(br):not(button):not(option):not(label):not(track):not(source):not(div):not(messaging-service):not(attribute-link):not(attribute-linker):not(component-selector)')).filter(function(element) { return element.id !== "component-selection" && element.id !== "attribute-selection" && element.id !== "transformation" });
+        var newElements = elements.filter(function(element) { return this._elements.indexOf(element) < 0; }.bind(this));
+
+        var compsel = this.$.form.querySelector('#component-selection');
+        for (var i = 0, element; element = newElements[i]; i++) {
+          var o = document.createElement('option');
+          o.innerHTML = _this.createSelector(element);
+          compsel.appendChild(o);
+
+          element.addEventListener('click', function(e) {
+            if (!_this.active) return;
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            compsel.value = _this.createSelector(this);
+            _this.updateAttributeSelection(_this.getAttributes(document.querySelector(compsel.value)));
+            _this.$.overlay.style.display = _this.$.form.style.display = 'block';
+          });
+          element.addEventListener('mouseover', function() {
+            if (!_this.active) return;
+            this._oldStyle = { border: this.style.border || '', background: this.style.background || '' };
+            this.style.border = '2px solid #DD4A68';
+            this.style.background = 'rgba(221, 74, 104, .5)';
+          });
+          element.addEventListener('mouseout', function() {
+            if (!_this.active) return;
+            this.style.border = this._oldStyle.border;
+            this.style.background = this._oldStyle.background;
+          });
+        }
+
+        this._elements = elements;
+      },
       initalize: function() {
+        this._elements = [];
         this.state = 0;
         var _this = this;
         var form = this.$.form;
         var ov = this.$.overlay;
-        var elements = document.body.querySelectorAll('*:not(script):not(a):not(some-content):not(fieldset):not(legend):not(h2):not(br):not(button):not(option):not(label):not(track):not(source):not(div):not(messaging-service):not(attribute-link):not(attribute-linker)');
 
-        this.$.activate.addEventListener('click', function(e) { _this.active = true; });
-        this.$.deactivate.addEventListener('click', function(e) { _this.active = false; });
+        this.$.activate.addEventListener('click', function(e) { _this.updateElementList(); _this.active = true; });
+        this.$.deactivate.addEventListener('click', function(e) { _this.state = 0; form.classList.remove('target'); form.querySelector('button').innerHTML = 'Select Target'; _this.active = false; });
+        this.$.remove.addEventListener('click', function(e) { Array.from(document.body.querySelectorAll('messaging-service > attribute-link')).forEach(function(l) { l.parentNode.removeChild(l); }) });
 
         ov.addEventListener('click', function(e) { ov.style.display = form.style.display = 'none'; });
 
@@ -130,34 +167,8 @@
           _this.updateAttributeSelection(_this.getAttributes(document.querySelector(this.value)));
         });
         compsel.innerHTML = '';
-        for (var i = 0, element; element = elements[i]; i++) {
-          if (element.id == "component-selection" || element.id == "attribute-selection" || element.id == "transformation") continue;
 
-          var o = document.createElement('option');
-          o.innerHTML = _this.createSelector(element);
-          compsel.appendChild(o);
-
-          element.addEventListener('click', function(e) {
-            if (!_this.active) return;
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            compsel.value = _this.createSelector(this);
-            _this.updateAttributeSelection(_this.getAttributes(document.querySelector(compsel.value)));
-            ov.style.display = form.style.display = 'block';
-          });
-          element.addEventListener('mouseover', function() {
-            if (!_this.active) return;
-            this._oldStyle = { border: this.style.border || '', background: this.style.background || '' };
-            this.style.border = '2px solid #DD4A68';
-            this.style.background = 'rgba(221, 74, 104, .5)';
-          });
-          element.addEventListener('mouseout', function() {
-            if (!_this.active) return;
-            this.style.border = this._oldStyle.border;
-            this.style.background = this._oldStyle.background;
-          });
-        }
+        this.updateElementList();
       },
       ready: function() {
         this.sourceComponent = '';
