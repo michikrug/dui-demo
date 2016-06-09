@@ -10,47 +10,38 @@
 
   <script src="smartcomposition/bower_components/webcomponentsjs/webcomponents.min.js"></script>
 
+  <link rel="import" href="smartcomposition/bower_components/polymer/polymer.html">
   <link rel="import" href="smartcomposition/SmartComponent.html">
   <link rel="import" href="smartcomposition/AttributeLink.html">
   <link rel="import" href="smartcomposition/MessagingService.html">
-
+  <link rel="import" href="components/all.html">
   <link rel="import" href="components/attribute-linker.html">
-  <link rel="import" href="components/google-map-element.html">
-  <link rel="import" href="components/google-geocoder-element.html">
-  <link rel="import" href="components/current-weather-element.html">
-  <link rel="import" href="components/simple-chart-element.html">
-  <link rel="import" href="components/content-switcher-element.html">
-  <link rel="import" href="components/wikipedia-extract-element.html">
 
-  <style>
-    html { box-sizing: border-box; }
-    *, *:before, *:after { box-sizing: inherit; }
-    body { font-size: 16px; font-family: sans-serif; padding: 1em; background-color: #fff; }
-    fieldset { height: 300px; vertical-align: top; box-sizing: border-box; display: inline-block; width: calc(100% - 7px - 2em); padding: 1em;  margin: 1em; }
-    fieldset.w50 { width: calc(50% - 7px - 2em); }
-    fieldset.w30 { width: calc(30% - 7px - 2em); }
-    fieldset.w20 { width: calc(20% - 7px - 2em); }
-
-    @media (max-width: 900px) {
-      fieldset { display: block; width: calc(100% - 7px - 2em) !important; }
-    }
-    @media (min-width: 1400px) {
-      fieldset.w50, fieldset.w30, fieldset.w20 { width: calc(33.333% - 7px - 2em); }
-    }
-    :-webkit-full-screen #container { padding: 1em; }
-    :-moz-full-screen #container { padding: 1em; }
-    :-ms-fullscreen #container { padding: 1em; }
-    :-webkit-full-screen { position: fixed !important; top: 0 !important; left: 0 !important; font-size: 1.5em; width: 100% !important; height: 100% !important; max-height: none !important; max-width: none !important; background: #fff; }
-    :-moz-full-screen { position: fixed !important; top: 0 !important; left: 0 !important; font-size: 1.5em; width: 100% !important; height: 100% !important; max-height: none !important; max-width: none !important; background: #fff; }
-    :-ms-fullscreen { position: fixed !important; top: 0 !important; left: 0 !important; font-size: 1.5em; width: 100% !important; height: 100% !important; max-height: none !important; max-width: none !important; background: #fff; }
-
-    google-map, wikipedia-extract { width: 100%; height: 250px; }
-    #inpTest, #inpTest2 { width: 250px; }
-  </style>
-
+  <link rel="stylesheet" href="normalize.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <attribute-linker></attribute-linker><br>
+  <attribute-linker></attribute-linker>&nbsp;
+  <input type="text" id="inpDeviceName" placeholder="Device Name" onchange="this.setAttribute('value', this.value)">&nbsp;
+  <component-selector>
+    <option value="text-input">TEXT INPUT</option>
+    <option value="simple-chart">SIMPLE CHART</option>
+    <option value="nytimes-news">NY TIMES NEWS</option>
+    <option value="translate-text">TRANSLATE TEXT</option>
+    <option value="semantic-extraction">SEMANTIC EXTRACTION</option>
+    <option value="youtube-search">YOUTUBE SEARCH</option>
+    <option value="smart-video">SMART VIDEO</option>
+    <option value="flickr-images">FLICKR IMAGES</option>
+    <option value="google-geocoder">GOOGLE GEOCODER</option>
+    <option value="google-map">GOOGLE MAP</option>
+    <option value="wikipedia-extract">WIKIPEDIA EXTRACT</option>
+    <option value="twitter-tweets">TWITTER TWEETS</option>
+    <option value="current-weather">CURRENT WEATHER</option>
+    <option value="philips-hue">PHILIPS HUE</option>
+  </component-selector><br>
+
+  <attribute-link source="#inpDeviceName@value"  target="messaging-service@client-name"></attribute-link>
+  <attribute-link target="#inpDeviceName@value"  source="messaging-service@client-name"></attribute-link>
 
   <some-content>
     <fieldset style="height:110px">
