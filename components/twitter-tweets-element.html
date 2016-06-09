@@ -1,0 +1,86 @@
+<dom-module id="twitter-tweets">
+
+  <style>
+    :host {
+      display: inline-block;
+    }
+    #container {
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      position: relative;
+      text-align: left;
+    }
+    span.highlight {
+      color: orange;
+    }
+    p {
+      padding-right: .5em;
+    }
+  </style>
+
+  <template>
+    <div id="container">
+      <content></content>
+      <template is="dom-repeat" items="{{tweets}}" as="tweet">
+        <p>
+          <strong>{{tweet.user.screen_name}}<span>:</span></strong>
+          <template is="dom-repeat" items="{{tweet.parts}}" as="part"><span class$="{{part.highlight}}">{{part.text}}</span></template>
+        </p>
+      </template>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'twitter-tweets',
+      behaviors: [Polymer.InteractionBehavior],
+      fileLocation: 'http://apfel.informatik.tu-chemnitz.de/polymer/polymer-examples/twitter-tweets-element.html',
+      properties: {
+        count: {
+          type: Number,
+          value: 4,
+          reflectToAttribute: true
+        },
+        language: {
+          type: String,
+          value: 'en',
+          reflectToAttribute: true
+        },
+        query: {
+          type: String,
+          reflectToAttribute: true
+        },
+        tweets: {
+          type: Object,
+          notify: true,
+          reflectToAttribute: true
+        }
+      },
+      observers: [
+        'propsChanged(count, language, query)'
+      ],
+      propsChanged: function() {
+        this.query && this.getTweets();
+      },
+      getTweets: function() {
+        var _this = this;
+        var re = new RegExp('(' + this.query + ')', 'ig');
+        window.xhrq.get('https://api.twitter.com/1.1/search/tweets.json', function(tweets) {
+          var statuses = tweets && tweets.statuses || [];
+          statuses.forEach(function(tweet) {
+            tweet.parts = tweet.text.split(re).map(function(part) {
+              return { text: part, highlight: part.toLowerCase() === _this.query.toLowerCase() ? 'highlight' : ''};
+            });
+          });
+          _this.tweets = statuses;
+        }, {
+          q: this.query,
+          lang: this.language || 'en',
+          count: this.count || 4
+        }, 'json');
+      }
+    });
+  </script>
+
+</dom-module>

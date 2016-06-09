@@ -1,0 +1,53 @@
+<dom-module id="component-selector">
+
+  <template>
+    <select id="list" on-change="setValue"></select>
+    <button on-click="addComponent">Add</button>
+  </template>
+
+  <script>
+    Polymer({
+        is: 'component-selector',
+        fileLocation: 'components/component-selector-element.html',
+        properties: {
+          value: {
+            type: String,
+            notify: true,
+            reflectToAttribute: true
+          }
+        },
+        setValue: function() {
+          this.value = this.$.list.value;
+        },
+        attached: function() {
+          var o = Polymer.dom(this).querySelectorAll('option');
+          var s = this.$.list;
+          this.value = o[0].getAttribute('value');
+          for (var i = 0; i < o.length; i++) {
+            s.appendChild(document.importNode(o[i], true));
+            if (o[i].getAttribute('selected')) this.value = o[i].getAttribute('value');
+          }
+        },
+        addComponent: function() {
+          var h, i, e, comp = this.value;
+          e = document.createElement('some-content');
+          h = document.createElement('fieldset');
+          h.classList.add('w50');
+          h.innerHTML = '<legend>' + comp + '</legend>';
+          e.appendChild(h);
+          if (comp == 'text-input') {
+            i = document.createElement('input');
+            i.setAttribute('type', 'text');
+            i.setAttribute('id', 'inpText');
+            i.setAttribute('onchange', "this.setAttribute('value', this.value)");
+          } else {
+            i = document.createElement(this.value);
+            i.style.height = i.style.width = '250px';
+          }
+          h.appendChild(i);
+          document.body.appendChild(e);
+        }
+    });
+  </script>
+
+</dom-module>

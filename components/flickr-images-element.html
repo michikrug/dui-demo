@@ -1,0 +1,66 @@
+<dom-module id="flickr-images">
+
+  <style>
+    :host {
+      display: inline-block;
+    }
+    #container {
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      position: relative;
+    }
+  </style>
+
+  <template>
+    <div id="container">
+      <template is="dom-repeat" items="{{images}}" as="image">
+        <img style="width:100%;"
+        src="{{image.url}}" onerror="(navigator.userAgent.toLowerCase().indexOf('firefox') === -1) && this.parentNode.removeChild(this);">
+      </template>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'flickr-images',
+      behaviors: [Polymer.InteractionBehavior],
+      fileLocation: 'components/flickr-images-element.html',
+      apiKey: '4cf3102b36c7378a657a46209c45cf81',
+      properties: {
+        count: {
+          type: Number,
+          value: 4,
+          reflectToAttribute: true
+        },
+        images: {
+          type: Object,
+          notify: true,
+          reflectToAttribute: true
+        },
+        query: {
+          type: String,
+          reflectToAttribute: true
+        }
+      },
+      observers: [
+        'queryChanged(count, query)'
+      ],
+      queryChanged: function() {
+        var _this = this;
+        window.xhrq.get('https://api.flickr.com/services/rest/?method=flickr.photos.search&format=json&nojsoncallback=1', function(data) {
+          _this.images = (data.photos.photo || []).map(function(image) {
+            image.url = 'http://farm' + image.farm + '.staticflickr.com/' + image.server + '/' + image.id + '_' + image.secret + '.jpg';
+            return image;
+          });
+        }, {
+          api_key: this.apiKey,
+          text: this.query,
+          sort: 'relevance',
+          per_page: 4
+        }, 'json');
+      }
+    });
+  </script>
+
+</dom-module>

@@ -1,0 +1,107 @@
+<dom-module id="youtube-search">
+
+  <style>
+    :host {
+      display: inline-block;
+    }
+    #container {
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      position: relative;
+      text-align: left;
+    }
+    #container ul {
+      list-style: none;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #container ul > li img {
+      height: 100%;
+      float: left;
+      margin-right: 5px;
+    }
+    #container ul > li span {
+      vertical-align: middle;
+      display: table-cell;
+      text-align: left;
+    }
+    #container ul > li {
+      height: 90px;
+      clear: both;
+      cursor: pointer;
+      margin-bottom: 5px;
+      display: table;
+      width: 100%;
+    }
+    #container ul > li:hover {
+      background-color: rgba(0,0,0,.1);
+    }
+  </style>
+
+  <template>
+    <div id="container">
+      <content></content>
+      <ul>
+      <template is="dom-repeat" items="{{videos}}" as="video">
+        <li on-click="setVideoUrl" data-video-id$="{{video.id.videoId}}"><img src="{{video.snippet.thumbnails.high.url}}"><span>{{video.snippet.title}}</span></li>
+      </template>
+      </ul>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'youtube-search',
+      behaviors: [Polymer.InteractionBehavior],
+      fileLocation: 'components/youtube-search-element.html',
+      properties: {
+        count: {
+          type: Number,
+          value: 3,
+          reflectToAttribute: true
+        },
+        query: {
+          type: String,
+          reflectToAttribute: true
+        },
+        videos: {
+          type: Object,
+          notify: true,
+          reflectToAttribute: true
+        },
+        videoUrl: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        }
+      },
+      observers: [
+        'propsChanged(count, query)'
+      ],
+      propsChanged: function() {
+        this.query && this.getVideos();
+      },
+      setVideoUrl: function(e) {
+        var c = e.target.nodeName === 'LI' ? e.target : e.target.parentNode;
+        this.videoUrl = 'https://www.youtube.com/watch?v=' + c.getAttribute('data-video-id');
+      },
+      getVideos: function() {
+        var _this = this;
+        window.xhrq.get('https://www.googleapis.com/youtube/v3/search', function(videos) {
+          _this.videos = videos && videos.items;
+        }, {
+          part: 'snippet',
+          q: this.query,
+          maxResults: this.count || 3,
+          type: 'video',
+          videoEmbeddable: true,
+          videoCaption: 'closedCaption',
+          relevanceLanguage: 'en'
+        }, 'json');
+      }
+    });
+  </script>
+
+</dom-module>

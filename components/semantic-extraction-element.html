@@ -1,0 +1,76 @@
+<dom-module id="semantic-extraction">
+
+  <script>
+    Polymer({
+      is: 'semantic-extraction',
+      fileLocation: 'components/semantic-extraction-element.html',
+      apikey: 'b9543ff024368b60add72be32a27d69ad40b51fc',
+      properties: {
+        text: {
+          type: String,
+          reflectToAttribute: true,
+          observer: 'textChanged'
+        },
+        term: {
+          type: Array,
+          notify: true,
+          reflectToAttribute: true
+        },
+        location: {
+          type: Array,
+          notify: true,
+          reflectToAttribute: true
+        },
+        person: {
+          type: Array,
+          notify: true,
+          reflectToAttribute: true
+        },
+        organization: {
+          type: Array,
+          notify: true,
+          reflectToAttribute: true
+        }
+      },
+      textChanged: function() {
+        var _this = this;
+        window.xhrq.get('http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities', function (data) {
+          var term = [], location = [], person = [], organization = [];
+          data.entities && data.entities.forEach(function(entity) {
+            entity.text = entity.text.replace('.', '');
+            switch(entity.type) {
+              case 'City':
+              case 'Region':
+              case 'Country':
+              case 'Continent':
+              case 'StateOrCounty':
+              case 'GeographicFeature':
+                location.push(entity.text);
+                break;
+              case 'Movie':
+              case 'Anatomy':
+              case 'Product':
+              case 'Facility':
+              case 'Technology':
+              case 'FieldTerminology':
+                term.push(entity.text);
+                break;
+              case 'Person':
+                person.push(entity.text);
+                break;
+              case 'Company':
+              case 'Organization':
+                organization.push(entity.text);
+                break;
+            }
+          });
+          _this.term = term;
+          _this.location = location;
+          _this.person = person;
+          _this.organization = organization;
+        }, { apikey: this.apikey, outputMode: 'json', text: this.text }, 'json');
+      }
+    });
+  </script>
+
+</dom-module>

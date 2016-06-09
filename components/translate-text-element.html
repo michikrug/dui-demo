@@ -1,0 +1,72 @@
+<dom-module id="translate-text">
+
+  <script>
+    Polymer({
+      is: 'translate-text',
+      fileLocation: 'components/translate-text-element.html',
+      properties: {
+        from: {
+          type: String,
+          value: 'de',
+          reflectToAttribute: true
+        },
+        to: {
+          type: String,
+          value: 'en',
+          reflectToAttribute: true
+        },
+        text: {
+          type: String,
+          reflectToAttribute: true
+        },
+        translatedText: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        }
+      },
+      observers: [
+        'textChanged(from, to, text)'
+      ],
+      created: function() {
+        this.getToken();
+      },
+      getToken: function(skipCache, callback) {
+        var _this = this;
+        window.xhrq.post('https://datamarket.accesscontrol.windows.net/v2/OAuth2-13', function(data) {
+          if (typeof data === 'object') {
+            _this._accessToken = data.access_token;
+            if (typeof callback === 'function') callback.call(_this);
+          } else {
+            if (!skipCache) _this.getToken(true);
+          }
+        }, {
+          client_id: "chroomaplus",
+          client_secret: "DFmEPSjKACNI6XQzYC11UTzXiBAeJHsDe8o7ztVb5Pc=",
+          scope: "http://api.microsofttranslator.com",
+          grant_type: "client_credentials"
+        }, 'json', skipCache);
+      },
+      translateText: function(text, callback) {
+        var _this = this;
+        window.xhrq.get('http://api.microsofttranslator.com/V2/Ajax.svc/Translate?oncomplete=', function(data) {
+          if (~data.indexOf('ArgumentException')) {
+            _this._accessToken = null;
+            _this.getToken(true, function() { this.translateText(text, callback); });
+            return;
+          }
+          callback.call(_this, data);
+        }, {
+          appId: 'Bearer ' + this._accessToken,
+          from: this.from,
+          to: this.to,
+          text: text
+        }, 'json');
+      },
+      textChanged: function() {
+        if (this.from && this.to && this.text) this.translateText(this.text, function(data) { this.translatedText = data; });
+      }
+    });
+  </script>
+
+</dom-module>
