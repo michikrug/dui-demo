@@ -1,33 +1,33 @@
 <dom-module id="nytimes-news">
 
-  <style>
-    :host {
-      display: inline-block;
-    }
-    #container {
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      position: relative;
-      text-align: left;
-      padding-top: 1em;
-    }
-    #container ul {
-      list-style: none;
-      width: 100%;
-      margin: 0;
-      padding: 0;
-    }
-    #container ul > li {
-      margin-bottom: 10px;
-      cursor: pointer;
-    }
-    #container ul > li:hover {
-      background-color: rgba(0,0,0,.1);
-    }
-  </style>
-
   <template>
+    <style>
+      :host {
+        display: inline-block;
+      }
+      #container {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        position: relative;
+        text-align: left;
+        padding-top: 1em;
+      }
+      #container ul {
+        list-style: none;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #container ul > li {
+        margin-bottom: 10px;
+        cursor: pointer;
+      }
+      #container ul > li:hover {
+        background-color: rgba(0,0,0,.1);
+      }
+    </style>
+
     <div id="container">
       <select on-change="changeFeed">
         <option value="http://www.nytimes.com/services/xml/rss/nyt/HomePage.xml">NYTimes.com Home Page (U.S.)</option>

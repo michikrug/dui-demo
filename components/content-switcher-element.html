@@ -1,20 +1,20 @@
 <dom-module id="content-switcher">
 
-  <style>
-    :host {
-      display: inline-block;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      position: relative;
-    }
-    some-content {
-      display: none;
-    }
-  </style>
-
   <template>
-    <content select="some-content"></content>
+    <style>
+      :host {
+        display: inline-block;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        position: relative;
+      }
+      some-content {
+        display: none;
+      }
+    </style>
+
+    <slot></slot>
   </template>
 
   <script>
@@ -45,7 +45,7 @@
 <dom-module id="some-content">
 
   <template>
-    <content></content>
+    <slot></slot>
   </template>
 
   <script>
@@ -60,24 +60,24 @@
 
 <dom-module id="navigation-pane">
 
-  <style>
-    :host {
-      display: inline-block;
-    }
-    ::content a {
-      margin-top: 2em;
-      display: inline-block;
-      text-decoration: none;
-    }
-    ::content a:not(:last-child):after {
-      content: "|";
-      padding: 0 1em;
-      color: initial;
-    }
-  </style>
-
   <template>
-    <content select="a"></content>
+    <style>
+      :host {
+        display: inline-block;
+      }
+      ::content a {
+        margin-top: 2em;
+        display: inline-block;
+        text-decoration: none;
+      }
+      ::content a:not(:last-child):after {
+        content: "|";
+        padding: 0 1em;
+        color: initial;
+      }
+    </style>
+
+    <slot></slot>
   </template>
 
   <script>
