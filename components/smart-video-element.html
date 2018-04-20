@@ -1,0 +1,245 @@
+<dom-module id="smart-video">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+      }
+      #video {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        position: relative;
+      }
+    </style>
+
+    <video id="video" controls></video>
+  </template>
+
+  <script>
+  (function() {
+
+    var YoutubeVideo = function(id, callback) {
+      return window.xhrq.get("http://www.youtube.com/get_video_info?video_id=" + id, function(video_info) {
+        function decodeQueryString(queryString) {
+          var keyValPairs = queryString.split('&'), r = {};
+          for (var _i = 0, _len = keyValPairs.length; _i < _len; _i++) {
+            r[decodeURIComponent(keyValPairs[_i].split('=')[0])] = decodeURIComponent(keyValPairs[_i].split('=')[1] || '');
+          }
+          return r;
+        }
+        var video = decodeQueryString(video_info);
+        if (video.status === 'fail') return callback(video);
+        video.sources = (function(url_encoded_fmt_stream_map) {
+          var sources = {}, _ref = url_encoded_fmt_stream_map.split(',');
+          for (var _i = 0, _len = _ref.length; _i < _len; _i++) {
+            var urlEncodedStream    = _ref[_i],
+                stream              = decodeQueryString(urlEncodedStream),
+                type                = stream.type.split(';')[0],
+                quality             = stream.quality.split(',')[0];
+            stream.original_url = stream.url,
+            stream.url          = stream.url + '&signature=' + stream.sig;
+            sources[type + ' ' + quality] = stream;
+          }
+          return sources;
+        })(video.url_encoded_fmt_stream_map);
+        video.getSource = function(type, quality) {
+          var lowest = exact = null, _ref = this.sources, key, source;
+          for (key in _ref) {
+            source = _ref[key];
+            if (source.type.match(type)) {
+              if (source.quality.match(quality)) {
+                exact = source;
+              } else {
+                lowest = source;
+              }
+            }
+          }
+          return exact || lowest;
+        };
+        return callback(video);
+      });
+    };
+
+    Polymer({
+      is: 'smart-video',
+      behaviors: [Polymer.InteractionBehavior],
+      fileLocation: 'components/smart-video-element.html',
+      properties: {
+        currentTime: {
+          type: Number,
+          value: 0,
+          notify: true,
+          reflectToAttribute: true,
+          observer: 'currentTimeChanged'
+        },
+        volume: {
+          type: Number,
+          notify: true,
+          reflectToAttribute: true,
+          observer: 'volumeChanged'
+        },
+        youtubeUrl: {
+          type: String,
+          reflectToAttribute: true,
+          observer: 'youtubeUrlChanged'
+        },
+        text_en: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true
+        },
+        text_de: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true
+        },
+        text_fr: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true
+        },
+        text_es: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true
+        }
+      },
+      currentTimeChanged: function() {
+        if (this.currentTime < 0) {
+          this.currentTime = 0;
+          return;
+        }
+        if (this.currentTime > this.$.video.duration) {
+          this.currentTime = this.$.video.duration;
+          return;
+        }
+        if (this._videoReady && this.$.video.paused && this.$.video.currentTime !== this.currentTime) this.$.video.currentTime = this.currentTime;
+      },
+      volumeChanged: function() {
+        if (this.$.video.volume !== this.volume) this.$.video.volume = this.volume;
+      },
+      created: function() {
+        this._videoReady = false;
+        this._isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+      },
+      attached: function() {
+        this.initVideo();
+      },
+      youtubeUrlChanged: function() {
+        var _this = this, videoUrl = this.youtubeUrl, videoId;
+        var hasYouTubeId = videoUrl.match(/v\=[a-z0-9-_]+/i);
+        if (hasYouTubeId !== null) videoId = hasYouTubeId[0].substr(2);
+        YoutubeVideo(videoId, function(video) {
+          if (video.status === 'fail') return;
+          
+          var ts = Polymer.dom(_this).querySelectorAll('track,source');
+          for (var i = 0; i < ts.length; i++) {
+            Polymer.dom(_this).removeChild(ts[i]);
+          }
+
+          var v = document.createElement('video');
+          v.id = 'video';
+          v.controls = true;
+          Polymer.dom(_this.root).replaceChild(v, _this.$.video);
+          _this.$.video = v;
+          var mp4 = video.getSource("video/mp4", "high");
+          if (mp4) {
+            var s = document.createElement('source');
+            s.src = mp4.url;
+            s.type = 'video/mp4';
+            Polymer.dom(_this).appendChild(s);
+            var t = document.createElement('track');
+            t.src = 'http://apfel.informatik.tu-chemnitz.de/chrooma/YouTubeCaptionGrabber/YouTubeCaptionService/GetCaption.ashx?v=' + videoId;
+            t.kind = 'metadata';
+            Polymer.dom(_this).appendChild(t);
+          }
+          _this.currentTime = 0;
+          _this.initVideo();
+        });
+      },
+      initVideo: function() {
+        var _this = this, c = Polymer.dom(this).children;
+
+        if (!this.$.video || c.length === 0 || this.$.video.children.length > 0) return;
+
+        for (var i = 0; i < c.length; i++) {
+          if (c[i].nodeName === 'SOURCE' || c[i].nodeName === 'TRACK') {
+            this.$.video.appendChild(document.importNode(c[i], true));
+          }
+        }
+
+        this.activeCues = [];
+
+        this.cueChanged = function() {
+          var activeCues = this.activeCues;
+
+          if (_this._skip) { _this.skip = false; return; }
+
+          if (_this._isFirefox) {
+             if (activeCues.length === _this.activeCues.length) {
+              if (activeCues.length === 0) return;
+              var same = true;
+              for (var index = 0; index < activeCues.length; index++) {
+                if (_this.activeCues.indexOf(activeCues[index]) === -1) {
+                  same = false;
+                  break;
+                }
+              }
+              if (same) return;
+            }
+            _this.activeCues = [];
+          }
+
+          for (var index = 0; index < activeCues.length; index++) {
+            var cue = activeCues[index];
+            var cueData = JSON.parse(cue.text);
+            cueData.entries.forEach(function(entry) {
+              var type = entry.type;
+              var props = entry.properties;
+              if (type === 'image' || type === 'wiki' || type === 'tweets' || type === 'coordinates') _this.publish(type, props.data);
+              if (type === 'subtitle') {
+                _this.text_en = props.text_en || props['text_en-US'] || props['text_en-GB'];
+                _this.text_de = props.text_de;
+                _this.text_fr = props.text_fr;
+                _this.text_es = props.text_es;
+              }
+            });
+            if (_this._isFirefox) _this.activeCues.push(cue);
+          }
+        };
+
+        this.$.video.addEventListener('loadedmetadata', function() {
+          _this._videoReady = true;
+
+          this.addEventListener('timeupdate', function() {
+            _this.currentTime = this.currentTime;
+            if (_this._isFirefox && textTrack) _this.cueChanged.bind(textTrack)();
+          });
+
+          this.addEventListener('volumechange', function() {
+            _this.volume = this.volume;
+          });
+
+          if (_this.currentTime > 0) {
+            this.currentTime = _this.currentTime;
+          }
+
+          var textTrack = null, textTracks = this.textTracks;
+          if (textTracks && textTracks.length > 0) {
+            for (var index = 0; index < textTracks.length; index++) {
+              if (textTracks[index].kind === 'metadata') {
+                textTrack = textTracks[index];
+                break;
+              }
+            }
+          }
+          if (!textTrack) return;
+          textTrack.mode = 'hidden';
+          if (!_this._isFirefox) textTrack.addEventListener('cuechange', _this.cueChanged);
+        });
+      }
+    });
+  })();
+  </script>
+
+</dom-module>
