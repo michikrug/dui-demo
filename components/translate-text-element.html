@@ -33,19 +33,10 @@
       },
       getToken: function(skipCache, callback) {
         var _this = this;
-        window.xhrq.post('https://datamarket.accesscontrol.windows.net/v2/OAuth2-13', function(data) {
-          if (typeof data === 'object') {
-            _this._accessToken = data.access_token;
-            if (typeof callback === 'function') callback.call(_this);
-          } else {
-            if (!skipCache) _this.getToken(true);
-          }
-        }, {
-          client_id: "chroomaplus",
-          client_secret: "DFmEPSjKACNI6XQzYC11UTzXiBAeJHsDe8o7ztVb5Pc=",
-          scope: "http://api.microsofttranslator.com",
-          grant_type: "client_credentials"
-        }, 'json', skipCache);
+        window.xhrq.post('https://api.cognitive.microsoft.com/sts/v1.0/issueToken?Subscription-Key=2fa4ae230f834864bab4ffc1da0e5094', function(data) {
+          _this._accessToken = data;
+          if (typeof callback === 'function') callback.call(_this);
+        }, skipCache);
       },
       translateText: function(text, callback) {
         var _this = this;
