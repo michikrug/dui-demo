@@ -131,7 +131,7 @@
         if (hasYouTubeId !== null) videoId = hasYouTubeId[0].substr(2);
         YoutubeVideo(videoId, function(video) {
           if (video.status === 'fail') return;
-          
+
           var ts = Polymer.dom(_this).querySelectorAll('track,source');
           for (var i = 0; i < ts.length; i++) {
             Polymer.dom(_this).removeChild(ts[i]);
@@ -149,7 +149,7 @@
             s.type = 'video/mp4';
             Polymer.dom(_this).appendChild(s);
             var t = document.createElement('track');
-            t.src = 'http://apfel.informatik.tu-chemnitz.de/chrooma/YouTubeCaptionGrabber/YouTubeCaptionService/GetCaption.ashx?v=' + videoId;
+            t.src = 'http://localhost/proxy/?url=http%3A%2F%2Fvsr-demo.informatik.tu-chemnitz.de%2Fchroomaplus%2FYouTubeCaptionService%2FGetCaption.ashx%3Fv%3D' + videoId;
             t.kind = 'metadata';
             Polymer.dom(_this).appendChild(t);
           }
