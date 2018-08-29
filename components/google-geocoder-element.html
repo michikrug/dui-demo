@@ -95,7 +95,7 @@
         created: function() {
           window.addEventListener('gmapsLoaded', this.initGeocoder.bind(this));
           if (typeof google !== 'object' || !google.maps) {
-            loadScript('//maps.googleapis.com/maps/api/js?sensor=false&callback=gmapsLoaded');
+            loadScript('//maps.googleapis.com/maps/api/js?key=AIzaSyDBHXPvMYU7Q3xS6XUZAVD2s8w2AqHQBo8&callback=gmapsLoaded');
           }
         },
         initGeocoder: function() {

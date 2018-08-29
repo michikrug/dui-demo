@@ -1,16 +1,18 @@
 html { box-sizing: border-box; }
 *, *:before, *:after { box-sizing: inherit; }
 body { font-size: 16px; font-family: sans-serif; padding: 1em; background-color: #fff; }
-fieldset { vertical-align: top; box-sizing: border-box; display: inline-block; width: calc(100% - 7px - 2em); padding: 1em;  margin: 1em; }
+fieldset { vertical-align: top; box-sizing: border-box; display: inline-block; width: calc(100% - 7px - 2em); padding: 1em;  margin: 1em; height: 300px; }
 fieldset.w50 { width: calc(50% - 7px - 2em); }
+fieldset.w35 { width: calc(35% - 7px - 2em); }
 fieldset.w30 { width: calc(30% - 7px - 2em); }
 fieldset.w20 { width: calc(20% - 7px - 2em); }
+fieldset.w15 { width: calc(15% - 7px - 2em); }
 
 @media (max-width: 900px) {
   fieldset { display: block; width: calc(100% - 7px - 2em) !important; }
 }
 @media (min-width: 1400px) {
-  fieldset.w50, fieldset.w30, fieldset.w20 { width: calc(33.333% - 7px - 2em); }
+  fieldset.w50, fieldset.w35, fieldset.w30, fieldset.w20, fieldset.w15 { width: calc(33.333% - 7px - 2em); }
 }
 :-webkit-full-screen #container { padding: 1em; }
 :-moz-full-screen #container { padding: 1em; }

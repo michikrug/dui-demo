@@ -1,5 +1,6 @@
 <dom-module id="google-map">
   <template>
+    <link rel="stylesheet" href="normalize.css">
     <style>
       :host {
         display: inline-block;
@@ -95,7 +96,7 @@
           window.addEventListener('gmapsLoaded', this.createMap.bind(this));
 
           if (typeof google !== 'object' || !google.maps) {
-            loadScript('//maps.googleapis.com/maps/api/js?sensor=false&callback=gmapsLoaded');
+            loadScript('//maps.googleapis.com/maps/api/js?key=AIzaSyDBHXPvMYU7Q3xS6XUZAVD2s8w2AqHQBo8&callback=gmapsLoaded')
           }
 
           this._style_observer = new MutationObserver((function() {
@@ -113,7 +114,7 @@
           var _this = this, gmap = this.$.gmap;
           if (typeof google !== 'object' || !google.maps || this._map) return;
 
-          this._map = new google.maps.Map(gmap, { zoom: this.zoom, disableDefaultUI: true, mapTypeControl: true, mapTypeId: this.mapType});
+          this._map = new google.maps.Map(gmap, { zoom: this.zoom, disableDefaultUI: true, mapTypeId: this.mapType});
 
           google.maps.event.addListener(this._map, 'dragend', function() {
             if (_this.continuous) return;

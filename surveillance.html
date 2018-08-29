@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Surveillance DUI Demo</title>
+
+  <script src="smartcomposition/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+
+  <link rel="import" href="smartcomposition/bower_components/polymer/polymer.html">
+  <link rel="import" href="smartcomposition/SmartComponent.html">
+  <link rel="import" href="smartcomposition/AttributeLink.html">
+  <link rel="import" href="smartcomposition/MessagingService.html">
+  <link rel="import" href="components/all.html">
+  <link rel="import" href="components/attribute-linker.html">
+
+  <link rel="stylesheet" href="normalize.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!--
+  <attribute-linker></attribute-linker>&nbsp;
+  <input type="text" id="inpDeviceName" placeholder="Device Name" onchange="this.setAttribute('value', this.value)">&nbsp;
+  <component-selector>
+    <option value="text-input">TEXT INPUT</option>
+    <option value="simple-chart">SIMPLE CHART</option>
+    <option value="nytimes-news">NY TIMES NEWS</option>
+    <option value="translate-text">TRANSLATE TEXT</option>
+    <option value="semantic-extraction">SEMANTIC EXTRACTION</option>
+    <option value="youtube-search">YOUTUBE SEARCH</option>
+    <option value="smart-video">SMART VIDEO</option>
+    <option value="flickr-images">FLICKR IMAGES</option>
+    <option value="google-geocoder">GOOGLE GEOCODER</option>
+    <option value="google-map">GOOGLE MAP</option>
+    <option value="wikipedia-extract">WIKIPEDIA EXTRACT</option>
+    <option value="twitter-tweets">TWITTER TWEETS</option>
+    <option value="current-weather">CURRENT WEATHER</option>
+    <option value="philips-hue">PHILIPS HUE</option>
+  </component-selector><br>
+  -->
+
+  <attribute-link source="#inpDeviceName@value" target="messaging-service@client-name"></attribute-link>
+  <attribute-link target="#inpDeviceName@value" source="messaging-service@client-name"></attribute-link>
+
+  <some-content>
+    <fieldset class="w50">
+      <legend>Surveillance Camera</legend>
+      <smart-video style="width: 440px; height: 250px;" youtube-url="https://www.youtube.com/watch?v=h_broBdUV9w"></smart-video>
+    </fieldset>
+  </some-content>
+
+  <some-content>
+    <fieldset class="w15">
+      <legend>Temperature</legend>
+      <simple-chart id="chart3" type="temperature" value="-10" min="-10" max="50" style="width:30px;height:250px"></simple-chart>
+      <input id="inpTemp" type="text" readonly value="" style="width:55px;border:none;font-size:1.1em">
+      <current-weather></current-weather>
+    </fieldset>
+  </some-content>
+
+  <some-content>
+    <fieldset class="w35">
+      <legend>Other Information</legend>
+      <wikipedia-extract></wikipedia-extract>
+    </fieldset>
+  </some-content>
+
+  <some-content name="map">
+    <fieldset class="w50">
+      <legend>Street Map</legend>
+      <google-map id="gmap1" lat="51.506516" lng="-0.129309" zoom="16"></google-map>
+    </fieldset>
+  </some-content>
+
+  <some-content>
+    <fieldset class="w50">
+      <legend>Satellite View</legend>
+      <google-map id="gmap2" lat="51.506516" lng="-0.129309" zoom="19" map-type="hybrid"></google-map>
+      <google-geocoder id="geocoder-reverse" reverse></google-geocoder>
+    </fieldset>
+  </some-content>
+
+  <some-content>
+    <fieldset class="w35">
+      <legend>Current Events</legend>
+      <wikipedia-extract></wikipedia-extract>
+    </fieldset>
+  </some-content>
+  
+  <some-content>
+    <fieldset class="w35">
+      <legend>Upcoming Events</legend>
+      <wikipedia-extract></wikipedia-extract>
+    </fieldset>
+  </some-content>
+
+  <messaging-service endpoint="http://localhost:9001">
+    <attribute-link source="#gmap1@lat"  target="#gmap2@lat"></attribute-link>
+    <attribute-link source="#gmap1@lng"  target="#gmap2@lng"></attribute-link>
+    <attribute-link source="#gmap1@zoom" target="#gmap2@zoom"></attribute-link>
+
+    <attribute-link source="#gmap1@lat" target="#geocoder-reverse@lat"></attribute-link>
+    <attribute-link source="#gmap1@lng" target="#geocoder-reverse@lng"></attribute-link>
+    <attribute-link source="#geocoder-reverse@address" target="current-weather@city"></attribute-link>
+    <attribute-link source="#geocoder-reverse@address" target="wikipedia-extract@query" transformation="source.split(', ')[0]"></attribute-link>
+
+    <attribute-link source="#geocoder@lat" target="#gmap1@lat"></attribute-link>
+    <attribute-link source="#geocoder@lng" target="#gmap1@lng"></attribute-link>
+
+    <attribute-link source="#inpText@value" target="current-weather@city"></attribute-link>
+    <attribute-link source="#inpText@value" target="wikipedia-extract@query"></attribute-link>
+    <attribute-link source="current-weather@temperature" target="#chart3@value"></attribute-link>
+    <attribute-link source="current-weather@temperature" target="#inpTemp@value" transformation="source + '°C'"></attribute-link>
+
+    <attribute-link source="smart-video@text_en" target="semantic-extraction@text"></attribute-link>
+  </messaging-service>
+
+  <semantic-extraction></semantic-extraction>
+
+</body>
+</html>
