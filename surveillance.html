@@ -46,30 +46,39 @@
   <some-content>
     <fieldset class="w50">
       <legend>Surveillance Camera</legend>
-      <smart-video style="width: 440px; height: 250px;" youtube-url="https://www.youtube.com/watch?v=h_broBdUV9w"></smart-video>
+      <smart-video style="width: 500px; height: 280px;" youtube-url="https://www.youtube.com/watch?v=h_broBdUV9w"></smart-video>
     </fieldset>
+  </some-content>
+
+  <some-content>
+    <fieldset class="w20">
+      <legend>Other Cameras</legend>
+      <youtube-search query="surveillance hd footage street night vision" count="10"></youtube-search>
+    </fieldset>    
   </some-content>
 
   <some-content>
     <fieldset class="w15">
       <legend>Temperature</legend>
-      <simple-chart id="chart3" type="temperature" value="-10" min="-10" max="50" style="width:30px;height:250px"></simple-chart>
+      <simple-chart id="chart3" type="temperature" value="-10" min="-10" max="50" style="width:35px;height:280px"></simple-chart>
       <input id="inpTemp" type="text" readonly value="" style="width:55px;border:none;font-size:1.1em">
       <current-weather></current-weather>
     </fieldset>
   </some-content>
 
   <some-content>
-    <fieldset class="w35">
-      <legend>Other Information</legend>
-      <wikipedia-extract></wikipedia-extract>
-    </fieldset>
-  </some-content>
+      <fieldset class="w15" style="text-align: center">
+        <legend>EMERGENCY</legend>
+        <button style="height: 100px; width: 100px; background: #cc0000; color: yellow;">ALERT</button>
+        <br><br><br>
+        <button style="height: 100px; width: 100px; background: #00cc00; color: white;">CLEAR</button>
+      </fieldset>
+    </some-content>
 
   <some-content name="map">
     <fieldset class="w50">
       <legend>Street Map</legend>
-      <google-map id="gmap1" lat="51.506516" lng="-0.129309" zoom="16"></google-map>
+      <google-map id="gmap1" lat="51.506516" lng="-0.129309" zoom="16" map-type="roadmap" traffic></google-map>
     </fieldset>
   </some-content>
 
@@ -82,16 +91,23 @@
   </some-content>
 
   <some-content>
-    <fieldset class="w35">
-      <legend>Current Events</legend>
-      <wikipedia-extract></wikipedia-extract>
+    <fieldset class="w33">
+      <legend>Traffic Information</legend>
+      <traffic-london></traffic-london>
     </fieldset>
   </some-content>
   
   <some-content>
-    <fieldset class="w35">
+    <fieldset class="w33">
+      <legend>Current Events</legend>
+      <rss-feed feed-url="https://www.allinlondon.co.uk/rss/feeds/whatson-picks.xml" count="10"></rss-feed>
+    </fieldset>
+  </some-content>
+  
+  <some-content>
+    <fieldset class="w33">
       <legend>Upcoming Events</legend>
-      <wikipedia-extract></wikipedia-extract>
+      <rss-feed feed-url="https://www.allinlondon.co.uk/rss/feeds/whatson-town.xml" count="10"></rss-feed>
     </fieldset>
   </some-content>
 

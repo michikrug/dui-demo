@@ -1,0 +1,93 @@
+<dom-module id="rss-feed">
+
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+      }
+      #container {
+        width: 100%;
+        height: 280px;
+        overflow: auto;
+        position: relative;
+        text-align: left;
+      }
+      #container ul {
+        list-style: none;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #container ul > li {
+        margin-bottom: 10px;
+        cursor: pointer;
+      }
+      #container ul > li i {
+        font-size: .9em;
+        color: darkgray;
+      }
+      #container ul > li:hover {
+        background-color: rgba(0,0,0,.1);
+      }
+    </style>
+
+    <div id="container">
+      <ul>
+      <template is="dom-repeat" items="{{feedItems}}" as="entry">
+        <li on-click="publishText"><span data-title$="{{entry.title}}" data-description$="{{entry.description}}" inner-h-t-m-l="{{entry.title}}"></span></li>
+      </template>
+      </ul>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'rss-feed',
+      behaviors: [Polymer.InteractionBehavior],
+      fileLocation: 'components/rss-feed-element.html',
+      properties: {
+        feedUrl: {
+          type: String,
+          value: '',
+          observer: 'getFeed'
+        },
+        feedItems: {
+          type: Object,
+          value: [],
+          notify: true
+        },
+        text: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true
+        },
+        count: {
+          type: Number,
+          value: 6,
+          reflectToAttribute: true
+        }
+      },
+      publishText: function(e) {
+        var c = e.target.nodeName === 'LI' ? e.target.children[0] : e.target;
+        this.text = c.dataset.title + ' ' + c.dataset.description;
+      },
+      getFeed: function() {
+        var _this = this;
+        window.xhrq.get(this.feedUrl, function(result) {
+          var feedItems = result.querySelectorAll('item');
+          var entries = [];
+          for (var i = 0; i < feedItems.length; i++) {
+            var entry = {};
+            var titleParts = feedItems[i].querySelector('title').textContent.split(' (');
+            entry.title = '<i>' + titleParts[1].replace(')', '') + '</i><br>' + titleParts[0];
+            entry.description = feedItems[i].querySelector('description').textContent.replace(/(<.*>)/ig, '');
+            entry.link = feedItems[i].querySelector('link').getAttribute('href') || feedItems[i].querySelector('link').textContent;
+            entries.push(entry);
+          }
+          _this.feedItems = entries.slice(0, _this.count);
+        }, 'xml');
+      }
+    });
+  </script>
+
+</dom-module>

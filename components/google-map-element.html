@@ -69,6 +69,13 @@
             reflectToAttribute: true,
             observer: 'mapTypeChanged'
           },
+          traffic: {
+            type: Boolean,
+            value: false,
+            notify: true,
+            reflectToAttribute: true,
+            observer: 'trafficChanged'
+          },
           continuous: {
             type: Boolean,
             value: false,
@@ -91,6 +98,15 @@
             this.mapType = google.maps.MapTypeId.ROADMAP.toLowerCase();
           }
           this._map.setMapTypeId(this.mapType);
+        },
+        trafficChanged: function() {
+          if (!this._map) return;
+          if (this.traffic) {
+            this.trafficLayer = new google.maps.TrafficLayer();
+            this.trafficLayer.setMap(this._map);
+          } else {
+            this.trafficLayer.setMap(null);
+          }
         },
         created: function() {
           window.addEventListener('gmapsLoaded', this.createMap.bind(this));
@@ -149,6 +165,7 @@
           });
 
           this.fire('resize');
+          this.trafficChanged();
         }
       });
   })();

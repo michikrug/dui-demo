@@ -1,16 +1,18 @@
 <dom-module id="youtube-search">
 
   <template>
+    <link rel="stylesheet" href="normalize.css">
     <style>
       :host {
         display: inline-block;
+        width: 100%;
       }
       #container {
         width: 100%;
-        height: 100%;
-        overflow: auto;
+        height: 280px;
+        overflow: hidden;
         position: relative;
-        text-align: left;
+        text-align: center;
       }
       #container ul {
         list-style: none;
@@ -20,12 +22,10 @@
       }
       #container ul > li img {
         height: 100%;
-        float: left;
-        margin-right: 5px;
       }
       #container ul > li span {
         vertical-align: middle;
-        display: table-cell;
+        display: none;
         text-align: left;
       }
       #container ul > li {
@@ -42,7 +42,6 @@
     </style>
 
     <div id="container">
-      <content></content>
       <ul>
       <template is="dom-repeat" items="{{videos}}" as="video">
         <li on-click="setVideoUrl" data-video-id$="{{video.id.videoId}}"><img src="{{video.snippet.thumbnails.high.url}}"><span>{{video.snippet.title}}</span></li>
@@ -97,8 +96,8 @@
           maxResults: this.count || 3,
           type: 'video',
           videoEmbeddable: true,
-          videoCaption: 'closedCaption',
-          relevanceLanguage: 'en'
+          /*videoCaption: 'closedCaption',
+          relevanceLanguage: 'en'*/
         }, 'json');
       }
     });
