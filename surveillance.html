@@ -75,18 +75,18 @@
       </fieldset>
     </some-content>
 
+  <some-content>
+    <fieldset class="w50">
+      <legend>Satellite View</legend>
+      <google-map id="gmap2" zoom="19" map-type="hybrid"></google-map>
+      <google-geocoder id="geocoder-reverse" reverse></google-geocoder>
+    </fieldset>
+  </some-content>
+
   <some-content name="map">
     <fieldset class="w50">
       <legend>Street Map</legend>
       <google-map id="gmap1" lat="51.506516" lng="-0.129309" zoom="16" map-type="roadmap" traffic></google-map>
-    </fieldset>
-  </some-content>
-
-  <some-content>
-    <fieldset class="w50">
-      <legend>Satellite View</legend>
-      <google-map id="gmap2" lat="51.506516" lng="-0.129309" zoom="19" map-type="hybrid"></google-map>
-      <google-geocoder id="geocoder-reverse" reverse></google-geocoder>
     </fieldset>
   </some-content>
 
@@ -114,7 +114,6 @@
   <messaging-service endpoint="http://localhost:9001">
     <attribute-link source="#gmap1@lat"  target="#gmap2@lat"></attribute-link>
     <attribute-link source="#gmap1@lng"  target="#gmap2@lng"></attribute-link>
-    <attribute-link source="#gmap1@zoom" target="#gmap2@zoom"></attribute-link>
 
     <attribute-link source="#gmap1@lat" target="#geocoder-reverse@lat"></attribute-link>
     <attribute-link source="#gmap1@lng" target="#geocoder-reverse@lng"></attribute-link>
